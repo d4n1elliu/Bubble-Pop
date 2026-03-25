@@ -9,52 +9,35 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @State private var playerName: String = "" // Added for player name
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        NavigationStack { // Use NavigationStack for a single-column game flow
+            VStack(spacing: 20) {
+                Spacer() // Pushes content to the middle from the top
+                
+                Text("Bubble Pop")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                // Placeholder for Player Name entry
+                TextField("Enter your name", text: $playerName)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal, 40)
+                
+                NavigationLink("Start Game") {
+                    // This will eventually lead to your GameView
+                    Text("Game Starts Here!")
                 }
-                .onDelete(perform: deleteItems)
+                .buttonStyle(.borderedProminent)
+                
+                Spacer() // Pushes content to the middle from the bottom
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
+            // You can keep a small title or hide it
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
-
 #Preview {
     ContentView()
         .modelContainer(for: Item.self, inMemory: true)
