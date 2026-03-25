@@ -17,8 +17,7 @@ struct ContentView: View {
                 Spacer() // Pushes content to the middle from the top
                 
                 Text("Bubble Pop")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+                    .font(.system(size: 60, weight: .light, design: .default))
                 
                 // Placeholder for Player Name entry
                 TextField("Enter your name", text: $playerName)
