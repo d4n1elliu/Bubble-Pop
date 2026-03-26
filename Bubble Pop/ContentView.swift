@@ -24,11 +24,14 @@ struct ContentView: View {
                     .textFieldStyle(.roundedBorder)
                     .padding(.horizontal, 40)
                 
-                NavigationLink("Start Game") {
-                    // This will eventually lead to your GameView
-                    Text("Game Starts Here!")
+                NavigationLink(destination: GameView()) {
+                    // Leads into Game Scene
+                    Text("Start Game")
+                        .fontWeight(.bold)
+                        .frame(maxWidth: 200)
                 }
                 .buttonStyle(.borderedProminent)
+                .padding(.horizontal, 40)
                 
                 Spacer() // Pushes content to the middle from the bottom
             }
