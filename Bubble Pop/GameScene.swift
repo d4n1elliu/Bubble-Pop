@@ -9,12 +9,16 @@ import SwiftUI
 import SpriteKit
 
 class GameScene: SKScene {
+    
+    override func didMove(to view: SKView) {
+        bubbleMove()
+    }
     func bubbleMove() {
         // Set up physics (gravity)
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         
         // Generate random bubbles
-        for _ in 0..<10 {
+        for _ in 0..<30 {
             generatingBubbles()
         }
     }
@@ -46,12 +50,13 @@ class GameScene: SKScene {
     }
 }
 
-// 2. Wrap up the scene in SwiftUI View
+// 2. Display Game Scene in SwiftUI View
 struct GameView: View {
     var scene: SKScene {
         let scene = GameScene()
         scene.size = CGSize(width: 400, height: 700)
         scene.scaleMode = .fill
+        scene.backgroundColor = .systemBlue
         return scene
     }
         
@@ -59,4 +64,8 @@ struct GameView: View {
         SpriteView(scene: scene)
             .ignoresSafeArea()
     }
+}
+
+#Preview {
+    ContentView()
 }
