@@ -3,7 +3,8 @@
 BubblePop is an interactive, casual iOS game developed in swift. This game challenges players to pop randomly appearing bubbles of various colors to achieve the highest score within a set timeframe.
 
 ## 🎮 Core Gameplay Mechanics
-Dynamic Bubble Generation: Bubbles appear at random positions on the screen without overlapping or clipping the edges. Scoring System: Each bubble color represents a different point value and probability of appearance:
+- Dynamic Bubble Generation: Bubbles appear at random positions on the screen without overlapping or clipping the edges. 
+- Scoring System: Each bubble color represents a different point value and probability of appearance:
 | Color | Point | Chance |
 | :--- | :--- | :--- |
 | 🔴 Red: | 1 Point | (40% chance) |
