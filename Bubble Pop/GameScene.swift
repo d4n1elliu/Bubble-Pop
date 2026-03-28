@@ -38,7 +38,7 @@ class GameScene: SKScene {
         /// Identifer used for hit-testing in touch events
         bubble.name = "Bubbles"
         
-        /// Bubbles visual styling
+        /// Bubble visual styling 
         bubble.fillColor = .white
         bubble.strokeColor = .cyan
         bubble.lineWidth = 2
@@ -51,7 +51,7 @@ class GameScene: SKScene {
         
         /// Ensures elastic collisions and frictionless movement
         bubble.physicsBody = SKPhysicsBody(circleOfRadius: radius)
-        bubble.physicsBody?.restitution = 1 // Perfect bounce (no energy lost)
+        bubble.physicsBody?.restitution = 0.5 // Perfect bounce (no energy lost)
         bubble.physicsBody?.friction = 0
         bubble.physicsBody?.linearDamping = 0 // No air resistance
         bubble.physicsBody?.allowsRotation = false
@@ -76,8 +76,24 @@ class GameScene: SKScene {
                 let fadeOut = SKAction.fadeOut(withDuration: 0.1)
                 let remove = SKAction.removeFromParent()
                 
-                node.run(SKAction.sequence([scaleOut, fadeOut, remove]))
+                /// Run the sequence and check for game over AFTER the bubble is removed
+                node.run(SKAction.sequence([scaleOut, fadeOut, remove])) { [weak self] in
+                    self?.gameOver()
+                }
             }
+        }
+    }
+    
+    /// Game over screen when all bubbles are poppped
+    func gameOver() {
+        let remainingBubbleCheck = children.filter{ $0.name == "Bubbles"}
+        if remainingBubbleCheck.isEmpty {
+            let gameOverLabel = SKLabelNode(text: "Game Over")
+            gameOverLabel.fontSize = 50
+            gameOverLabel.zPosition = 100
+            gameOverLabel.fontColor = .red
+            gameOverLabel.position = CGPoint(x: frame.midX, y: frame.midY)
+            addChild(gameOverLabel)
         }
     }
 }
