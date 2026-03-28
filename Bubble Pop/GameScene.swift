@@ -10,6 +10,9 @@ import SpriteKit
 
 class GameScene: SKScene {
     
+    /// 1. Add this closure to talk to SwiftUI
+    var onReturnHome: (() -> Void)?
+    
     /// Called immediately after the scene is presented by a view.
     override func didMove(to view: SKView) {
         bubbleMove()
@@ -25,7 +28,7 @@ class GameScene: SKScene {
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         
         /// Initialize the game world with a set number of bubbles
-        for _ in 0..<30 {
+        for _ in 0..<5 {
             generatingBubbles()
         }
     }
@@ -65,6 +68,8 @@ class GameScene: SKScene {
     }
     /// Detects user taps and removes the corresponding bubble with a 'pop' animation.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    
+        
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
         let tappedNodes = nodes(at: location)
@@ -94,25 +99,64 @@ class GameScene: SKScene {
             gameOverLabel.fontColor = .red
             gameOverLabel.position = CGPoint(x: frame.midX, y: frame.midY)
             addChild(gameOverLabel)
+            
+            // 2. Instead of a SpriteKit button (which is hard to style),
+                        // we will trigger the SwiftUI overlay in the next step.
+            onReturnHome?()
         }
     }
 }
 
 /// A SwiftUI wrapper that configures and presents the GameScene.
 struct GameView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var showReturnButton = false
     
-    /// Computed property to initialize the SpriteKit scene with standard dimensions.
-    var scene: SKScene {
+    // Create the scene instance
+    @State private var gameScene: GameScene = {
         let scene = GameScene()
         scene.size = CGSize(width: 400, height: 700)
         scene.scaleMode = .fill
         scene.backgroundColor = .systemBlue
         return scene
-    }
+    }()
         
     var body: some View {
-        SpriteView(scene: scene)
-            .ignoresSafeArea()
+        ZStack {
+            // The Game Layer
+            SpriteView(scene: gameScene)
+                .ignoresSafeArea()
+                .onAppear {
+                    // Tell the game what to do when "onReturnHome" is triggered
+                    gameScene.onReturnHome = {
+                        withAnimation {
+                            showReturnButton = true
+                        }
+                    }
+                }
+            
+            // The UI Layer (Only shows at the end)
+            if showReturnButton {
+                VStack {
+                    Spacer()
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Text("Return to Home")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.red)
+                            .cornerRadius(15)
+                    }
+                    .padding(.horizontal, 40)
+                    .padding(.bottom, 100)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+        }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
