@@ -89,7 +89,7 @@ class GameScene: SKScene {
         let tappedNodes = nodes(at: location)
         
         for node in tappedNodes {
-            if node.name == "Bubbles" {
+            if node.name == Constants.bubbleName {
                 
                 ///Imcrementing score by 1 per bubble click
                 playerScore?.currentScore += 1
@@ -155,6 +155,29 @@ struct GameView: View {
                     }
                 }
             
+            // --- TOP LEFT SCORE COUNTER ---
+            if !showReturnButton {
+                VStack {
+                    HStack {
+                        VStack(alignment: .leading, spacing: -5) {
+                            Text("SCORE")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .foregroundColor(.white.opacity(0.8))
+                            
+                            Text("\(playerData.currentScore)")
+                                .font(.system(size: 45, weight: .black, design: .rounded))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.leading, 25)
+                        .padding(.top, 10)
+                        
+                        Spacer()
+                    }
+                    Spacer()
+                }
+            }
+            
+            // --- GAME OVER OVERLAY ---
             if showReturnButton {
                 VStack(spacing: 20) {
                     Spacer()
@@ -166,7 +189,7 @@ struct GameView: View {
                             .foregroundColor(.white)
                         Text("\(playerData.currentScore)")
                             .font(.system(size: 60, weight: .black, design: .rounded))
-                            .foregroundColor(.yellow) // Make the score stand out
+                            .foregroundColor(.yellow)
                     }
                     .transition(.scale.combined(with: .opacity))
                     
