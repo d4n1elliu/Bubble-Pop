@@ -22,7 +22,7 @@ class GameScene: SKScene {
     }
      
     private enum Constants {
-        static let bubbleCount = 1
+        static let bubbleCount = 5
         static let bubbleRadius: CGFloat = 30
         static let initialImpulseRange: CGFloat = 100
         static let labelYOffset: CGFloat = 0.3
@@ -109,20 +109,26 @@ class GameScene: SKScene {
     /// Game over screen when all bubbles are poppped
     func gameOver() {
         let remainingBubbleCheck = children.filter{ $0.name == Constants.bubbleName}
+        // ONLY run this code if there are zero bubbles left
         if remainingBubbleCheck.isEmpty {
             let gameOverLabel = SKLabelNode(text: Constants.gameOverText)
             let yPos = frame.midY + (frame.height * Constants.labelYOffset)
+            
             gameOverLabel.fontSize = 50
             gameOverLabel.fontName = "AvenirNext-Bold"
             gameOverLabel.zPosition = 100
             gameOverLabel.fontColor = .red
             gameOverLabel.position = CGPoint(x: frame.midX, y: yPos)
+            
             addChild(gameOverLabel)
             
-            // 2. Instead of a SpriteKit button (which is hard to style),
-                        // we will trigger the SwiftUI overlay in the next step.
+            // Trigger the SwiftUI overlay
             onReturnHome?()
         }
+    }
+    
+    func resetGameScene() {
+        self.removeAllChildren()
     }
 }
 
@@ -194,7 +200,9 @@ struct GameView: View {
                     .transition(.scale.combined(with: .opacity))
                     
                     Button(action: {
-                        playerData.resetGame() // Reset score for next time
+                        // Clear the "Game Over" label and nodes
+                        gameScene.resetGameScene()
+                        playerData.resetGame() // Reset the score
                         dismiss()
                     }) {
                         Text("Return to Home")
