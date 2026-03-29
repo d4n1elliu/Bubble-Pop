@@ -55,11 +55,32 @@ class GameScene: SKScene {
         let bubble = SKShapeNode(circleOfRadius: Constants.bubbleRadius)
         /// Identifer used for hit-testing in touch events
         bubble.name = Constants.bubbleName
-        /// Bubble visual styling
-        bubble.fillColor = .white
-        bubble.strokeColor = .cyan
+        
+        
+        /// Probablity Logic
+        let randomColor = generateBubbleColor()
+        bubble.fillColor = randomColor
         bubble.lineWidth = Constants.bubbleWidth
         bubble.alpha = Constants.bubbleAlpha
+        
+        /// Point based on colour assigned
+        var points = 1
+        switch randomColor {
+            case .red:
+                points = 1
+            case .systemPink:
+                points = 2
+            case .systemGreen:
+                points = 5
+            case .systemBlue:
+                points = 8
+            case .black:
+                points = 10
+            default:
+                points = 1
+        }
+        
+        bubble.userData = ["points": points as NSNumber]
         
         bubble.position = CGPoint(
             x: CGFloat.random(in: Constants.bubbleRadius...frame.width - Constants.bubbleRadius),
@@ -91,8 +112,12 @@ class GameScene: SKScene {
         for node in tappedNodes {
             if node.name == Constants.bubbleName {
                 
-                ///Imcrementing score by 1 per bubble click
-                playerScore?.currentScore += 1
+                // 1. Retrieve the points you just saved
+                if let bubblePoints = node.userData?["points"] as? Int {
+                    playerScore?.currentScore += bubblePoints
+                } else {
+                    playerScore?.currentScore += 1 // Fallback if points aren't found
+                }
                 /// Bubble effect before fading out after being popped
                 let scaleOut = SKAction.scale(to: 1.2, duration: 0.1)
                 let fadeOut = SKAction.fadeOut(withDuration: 0.1)
