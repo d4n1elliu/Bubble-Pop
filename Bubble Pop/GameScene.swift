@@ -53,33 +53,20 @@ class GameScene: SKScene {
     /// Creates a single bubble node with physics properties and an initial kinetic impulse.
     func generatingBubbles() {
         let bubble = SKShapeNode(circleOfRadius: Constants.bubbleRadius)
-        /// Identifer used for hit-testing in touch events
         bubble.name = Constants.bubbleName
+            
+        /// Probability Logic
+        let bubbleType = generateBubbleColor() // This returns a BubbleColours enum
         
-        
-        /// Probablity Logic
-        let randomColor = generateBubbleColor()
-        bubble.fillColor = randomColor
+        // FIX 1: Use the .colour property to get the actual UIColor
+        bubble.fillColor = bubbleType.colour
+            
         bubble.lineWidth = Constants.bubbleWidth
         bubble.alpha = Constants.bubbleAlpha
-        
+            
         /// Point based on colour assigned
-        var points = 1
-        switch randomColor {
-            case .red:
-                points = 1
-            case .systemPink:
-                points = 2
-            case .systemGreen:
-                points = 5
-            case .systemBlue:
-                points = 8
-            case .black:
-                points = 10
-            default:
-                points = 1
-        }
-        
+        let points = bubbleType.points
+            
         bubble.userData = ["points": points as NSNumber]
         
         bubble.position = CGPoint(

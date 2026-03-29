@@ -24,8 +24,8 @@ struct ContentView: View {
                     .textFieldStyle(.roundedBorder)
                     .padding(.horizontal, 40)
                 
+                // Change GameScene() to GameView()
                 NavigationLink(destination: GameView()) {
-                    /// Leads into Game Scene
                     Text("Start Game")
                         .fontWeight(.bold)
                         .frame(maxWidth: 200)
@@ -40,7 +40,9 @@ struct ContentView: View {
         }
     }
 }
+
 #Preview {
     ContentView()
+        .environment(PlayerData())
         .modelContainer(for: Item.self, inMemory: true)
 }
