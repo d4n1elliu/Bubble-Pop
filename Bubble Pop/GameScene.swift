@@ -161,7 +161,7 @@ struct GameView: View {
                     }
                 }
             
-            // --- TOP LEFT SCORE COUNTER ---
+            /// --- TOP LEFT SCORE COUNTER ---
             if !showReturnButton {
                 VStack {
                     HStack {
@@ -183,12 +183,12 @@ struct GameView: View {
                 }
             }
             
-            // --- GAME OVER OVERLAY ---
+            /// --- GAME OVER OVERLAY ---
             if showReturnButton {
                 VStack(spacing: 20) {
                     Spacer()
                     
-                    // 4. Display the score at the end
+                    /// 4. Display the score at the end
                     VStack {
                         Text("Final Score")
                             .font(.title2)
@@ -200,7 +200,7 @@ struct GameView: View {
                     .transition(.scale.combined(with: .opacity))
                     
                     Button(action: {
-                        // Clear the "Game Over" label and nodes
+                        /// Clear the "Game Over" label and nodes
                         gameScene.resetGameScene()
                         playerData.resetGame() // Reset the score
                         dismiss()

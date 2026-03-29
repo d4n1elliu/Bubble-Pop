@@ -9,23 +9,23 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @State private var playerName: String = "" // Added for player name
+    @State private var playerName: String = "" /// Added for player name
 
     var body: some View {
-        NavigationStack { // Use NavigationStack for a single-column game flow
+        NavigationStack { /// Use NavigationStack for a single-column game flow
             VStack(spacing: 20) {
-                Spacer() // Pushes content to the middle from the top
+                Spacer() /// Pushes content to the middle from the top
                 
                 Text("Bubble Pop")
                     .font(.system(size: 60, weight: .light, design: .default))
                 
-                // Placeholder for Player Name entry
+                /// Placeholder for Player Name entry
                 TextField("Enter your name", text: $playerName)
                     .textFieldStyle(.roundedBorder)
                     .padding(.horizontal, 40)
                 
                 NavigationLink(destination: GameView()) {
-                    // Leads into Game Scene
+                    /// Leads into Game Scene
                     Text("Start Game")
                         .fontWeight(.bold)
                         .frame(maxWidth: 200)
@@ -35,7 +35,7 @@ struct ContentView: View {
                 
                 Spacer() // Pushes content to the middle from the bottom
             }
-            // You can keep a small title or hide it
+            /// You can keep a small title or hide it
             .navigationBarTitleDisplayMode(.inline)
         }
     }
