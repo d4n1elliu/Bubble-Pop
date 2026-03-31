@@ -32,7 +32,7 @@ class GameScene: SKScene {
         static let bubbleWidth : CGFloat = 2
         /// String constants (Prevent typos)
         static let bubbleName = "Bubbles"
-        static let gameOverText = "Game Over"
+        static let endScoreBoard = "Score Board"
     }
     
     /// Configures the global physics environment and triggers the initial bubble spawn.
@@ -112,27 +112,27 @@ class GameScene: SKScene {
                 
                 /// Run the sequence and check for game over AFTER the bubble is removed
                 node.run(SKAction.sequence([scaleOut, fadeOut, remove])) { [weak self] in
-                    self?.gameOver()
+                    self?.endScoreBoard()
                 }
             }
         }
     }
     
     /// Game over screen when all bubbles are poppped
-    func gameOver() {
+    func endScoreBoard() {
         let remainingBubbleCheck = children.filter{ $0.name == Constants.bubbleName}
         // ONLY run this code if there are zero bubbles left
         if remainingBubbleCheck.isEmpty {
-            let gameOverLabel = SKLabelNode(text: Constants.gameOverText)
+            let scoreBoard = SKLabelNode(text: Constants.endScoreBoard)
             let yPos = frame.midY + (frame.height * Constants.labelYOffset)
             
-            gameOverLabel.fontSize = 50
-            gameOverLabel.fontName = "AvenirNext-Bold"
-            gameOverLabel.zPosition = 100
-            gameOverLabel.fontColor = .red
-            gameOverLabel.position = CGPoint(x: frame.midX, y: yPos)
+            scoreBoard.fontSize = 40
+            scoreBoard.fontName = "AvenirNext-UltraLight"
+            scoreBoard.zPosition = 100
+            scoreBoard.fontColor = .black
+            scoreBoard.position = CGPoint(x: frame.midX, y: yPos)
             
-            addChild(gameOverLabel)
+            addChild(scoreBoard)
             
             // Trigger the SwiftUI overlay
             onReturnHome?()
@@ -141,6 +141,19 @@ class GameScene: SKScene {
     
     func resetGameScene() {
         self.removeAllChildren()
+    }
+    
+    func restartGameSession() {
+        // 1. Clear existing nodes (bubbles and labels)
+        self.removeAllChildren()
+        
+        // 2. Re-setup the physics boundary (since removeAllChildren can affect certain setups)
+        physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+        
+        // 3. Spawn new bubbles
+        for _ in 0..<Constants.bubbleCount {
+            generatingBubbles()
+        }
     }
 }
 
@@ -154,7 +167,7 @@ struct GameView: View {
         let scene = GameScene()
         scene.size = CGSize(width: 400, height: 700)
         scene.scaleMode = .fill
-        scene.backgroundColor = .systemBlue
+        scene.backgroundColor = .white
         return scene
     }()
         
@@ -179,12 +192,12 @@ struct GameView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: -5) {
                             Text("SCORE")
-                                .font(.system(size: 14, weight: .bold, design: .rounded))
-                                .foregroundColor(.white.opacity(0.8))
+                                .font(.system(size: 14, weight: .light, design: .rounded))
+                                .foregroundColor(.black)
                             
                             Text("\(playerData.currentScore)")
-                                .font(.system(size: 45, weight: .black, design: .rounded))
-                                .foregroundColor(.white)
+                                .font(.system(size: 45, weight: .light, design: .rounded))
+                                .foregroundColor(.black)
                         }
                         .padding(.leading, 25)
                         .padding(.top, 10)
@@ -204,12 +217,29 @@ struct GameView: View {
                     VStack {
                         Text("Final Score")
                             .font(.title2)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black)
                         Text("\(playerData.currentScore)")
-                            .font(.system(size: 60, weight: .black, design: .rounded))
-                            .foregroundColor(.yellow)
+                            .font(.system(size: 40, weight: .light, design: .rounded))
                     }
                     .transition(.scale.combined(with: .opacity))
+                    
+                    // --- NEW RESTART BUTTON ---
+                    Button(action: {
+                        playerData.resetGame()           // Reset score to 0
+                        gameScene.restartGameSession()   // Clear scene and spawn new bubbles
+                        withAnimation {
+                            showReturnButton = false     // Hide the overlay
+                        }
+                    }) {
+                        Text("Restart Game")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.green)    // Different color to distinguish it
+                            .cornerRadius(15)
+                    }
+                    .padding(.horizontal, 20)
                     
                     Button(action: {
                         /// Clear the "Game Over" label and nodes
