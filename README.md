@@ -16,7 +16,7 @@ BubblePop is an interactive, casual iOS game developed in swift. This game chall
 - Game Loop: The screen refreshes every second, replacing unpopped bubbles with a new set of random colors and positions.  
 
 ## ⚙️ Features
-- Customizable Settings: Players can adjust the game duration (default 60s) and the maximum number of bubbles displayed simultaneously (default 15).  
+- Customizable Settings: Players can adjust the game duration (60 seconds) default and the maximum number of bubbles displayed simultaneously (15 seconds).  
 - Persistent Leaderboard: Player names and high scores are saved locally and displayed on a scoreboard at the end of each game.  
 - Adaptive Design: Functional across different iOS devices (iPhone/iPad) and screen orientations.  
 
