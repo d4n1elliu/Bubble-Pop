@@ -7,7 +7,9 @@
 
 import SwiftUI
 import SpriteKit
+import Observation
 
+@Observable
 class GameScene: SKScene {
     
     /// 1. Add this closure to talk to SwiftUI
@@ -16,11 +18,26 @@ class GameScene: SKScene {
     /// Referencing data collecting model
     var playerScore: PlayerData?
     
+    /// Timer property
+    var gameTimer: Timer?
+    
+    /// Total play time in seconds
+    var playTime = 60 {
+        didSet {
+            if playTime <= 0 {
+                stopTimer()
+                endScoreBoard()
+            }
+        }
+    }
+    let timeLabel = SKLabelNode(fontNamed: "ArialMT")
+    
     /// Called immediately after the scene is presented by a view.
     override func didMove(to view: SKView) {
         bubbleMove()
+        startTimer()
     }
-     
+    
     private enum Constants {
         static let bubbleCount = 5
         static let bubbleRadius: CGFloat = 30
@@ -54,19 +71,19 @@ class GameScene: SKScene {
     func generatingBubbles() {
         let bubble = SKShapeNode(circleOfRadius: Constants.bubbleRadius)
         bubble.name = Constants.bubbleName
-            
+        
         /// Probability Logic
         let bubbleType = generateBubbleColor() // This returns a BubbleColours enum
         
         // FIX 1: Use the .colour property to get the actual UIColor
         bubble.fillColor = bubbleType.colour
-            
+        
         bubble.lineWidth = Constants.bubbleWidth
         bubble.alpha = Constants.bubbleAlpha
-            
+        
         /// Point based on colour assigned
         let points = bubbleType.points
-            
+        
         bubble.userData = ["points": points as NSNumber]
         
         bubble.position = CGPoint(
@@ -90,7 +107,6 @@ class GameScene: SKScene {
     }
     /// Detects user taps and removes the corresponding bubble with a 'pop' animation.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-    
         
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
@@ -120,23 +136,59 @@ class GameScene: SKScene {
     
     /// Game over screen when all bubbles are poppped
     func endScoreBoard() {
-        let remainingBubbleCheck = children.filter{ $0.name == Constants.bubbleName}
-        // ONLY run this code if there are zero bubbles left
-        if remainingBubbleCheck.isEmpty {
-            let scoreBoard = SKLabelNode(text: Constants.endScoreBoard)
-            let yPos = frame.midY + (frame.height * Constants.labelYOffset)
-            
-            scoreBoard.fontSize = 40
-            scoreBoard.fontName = "AvenirNext-UltraLight"
-            scoreBoard.zPosition = 100
-            scoreBoard.fontColor = .black
-            scoreBoard.position = CGPoint(x: frame.midX, y: yPos)
-            
-            addChild(scoreBoard)
-            
-            // Trigger the SwiftUI overlay
-            onReturnHome?()
+        
+        /// Stop timer so it does not run in the background
+        stopTimer()
+        
+        /// Add "Scoreboard"  label to the SpriteKit scene
+        let remainingBubbles = children.filter {
+            $0.name == Constants.bubbleName
         }
+        /// Run if there are zero bubbles left
+        if (playTime <= 0 || remainingBubbles.isEmpty) {
+            stopTimer()
+            
+            if childNode(withName: Constants.endScoreBoard) == nil {
+                let scoreBoard = SKLabelNode(text: Constants.endScoreBoard)
+                scoreBoard.name = Constants.endScoreBoard
+                let yPos = frame.midY + (frame.height * Constants.labelYOffset)
+                scoreBoard.fontSize = 60
+                scoreBoard.fontName = "AvenirNext-Bold"
+                scoreBoard.fontColor = .black
+                scoreBoard.position = CGPoint(x: frame.midX, y: yPos)
+                scoreBoard.zPosition = 100
+                addChild(scoreBoard)
+                
+                // Trigger the SwiftUI overlay
+                onReturnHome?()
+            }
+        }
+    }
+    
+    /// TIMER LOGIC
+    func startTimer() {
+        stopTimer() /// Stop any existing timer first
+        playTime = 60 /// Resetting the time to 60 seconds
+        
+        /// Starting the timer
+        gameTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self else {
+                return
+            }
+            
+            if self.playTime > 0 {
+                self.playTime -= 1
+            } else {
+                self.stopTimer()
+                self.endScoreBoard()
+            }
+        }
+    }
+    
+    
+    func stopTimer() {
+        gameTimer?.invalidate()
+        gameTimer = nil
     }
     
     func resetGameScene() {
@@ -144,23 +196,29 @@ class GameScene: SKScene {
     }
     
     func restartGameSession() {
-        // 1. Clear existing nodes (bubbles and labels)
+        /// Clear existing nodes (bubbles and labels)
         self.removeAllChildren()
         
-        // 2. Re-setup the physics boundary (since removeAllChildren can affect certain setups)
+        /// Re-setup the physics boundary (since removeAllChildren can affect certain setups)
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         
-        // 3. Spawn new bubbles
+        //// Spawn new bubbles
         for _ in 0..<Constants.bubbleCount {
             generatingBubbles()
         }
+        startTimer()
+    }
+    // Clean up timer when scene is removed
+    override func willMove(from view: SKView) {
+        stopTimer()
     }
 }
+
 
 /// A SwiftUI wrapper that configures and presents the GameScene.
 struct GameView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(PlayerData.self) private var playerData // Access the shared data
+    @Environment(PlayerData.self) private var playerData /// Access the shared data
     @State private var showReturnButton = false
     
     @State private var gameScene: GameScene = {
@@ -170,7 +228,7 @@ struct GameView: View {
         scene.backgroundColor = .white
         return scene
     }()
-        
+    
     var body: some View {
         ZStack {
             SpriteView(scene: gameScene)
@@ -186,7 +244,7 @@ struct GameView: View {
                     }
                 }
             
-            /// --- TOP LEFT SCORE COUNTER ---
+            /// Score counter (Top left)
             if !showReturnButton {
                 VStack {
                     HStack {
@@ -200,15 +258,26 @@ struct GameView: View {
                                 .foregroundColor(.black)
                         }
                         .padding(.leading, 25)
-                        .padding(.top, 10)
                         
                         Spacer()
+                        
+                        /// Display timer (Top right)
+                        VStack(alignment: .trailing, spacing: -5) {
+                            Text("TIME")
+                                .font(.system(size: 14, weight: .light, design: .rounded))
+                                .foregroundColor(.black)
+                            
+                            Text("\(gameScene.playTime)")
+                                .font(.system(size: 45, weight: .light, design: .rounded))
+                                .foregroundColor(gameScene.playTime <= 10 ? .red : .black)
+                        }
+                        .padding(.trailing, 25)
                     }
                     Spacer()
                 }
             }
             
-            /// --- GAME OVER OVERLAY ---
+            /// Game over overlay
             if showReturnButton {
                 VStack(spacing: 20) {
                     Spacer()
@@ -225,10 +294,10 @@ struct GameView: View {
                     
                     // --- NEW RESTART BUTTON ---
                     Button(action: {
-                        playerData.resetGame()           // Reset score to 0
-                        gameScene.restartGameSession()   // Clear scene and spawn new bubbles
+                        playerData.resetGame()           /// Reset score to 0
+                        gameScene.restartGameSession()   /// Clear scene and spawn new bubbles
                         withAnimation {
-                            showReturnButton = false     // Hide the overlay
+                            showReturnButton = false     /// Hide the overlay
                         }
                     }) {
                         Text("Restart Game")
@@ -236,7 +305,7 @@ struct GameView: View {
                             .foregroundColor(.white)
                             .padding()
                             .frame(maxWidth: .infinity)
-                            .background(Color.green)    // Different color to distinguish it
+                            .background(Color.green)    /// Different color to distinguish it
                             .cornerRadius(15)
                     }
                     .padding(.horizontal, 20)
@@ -244,7 +313,7 @@ struct GameView: View {
                     Button(action: {
                         /// Clear the "Game Over" label and nodes
                         gameScene.resetGameScene()
-                        playerData.resetGame() // Reset the score
+                        playerData.resetGame() /// Reset the score
                         dismiss()
                     }) {
                         Text("Return to Home")
