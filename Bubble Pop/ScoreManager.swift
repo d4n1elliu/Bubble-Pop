@@ -28,10 +28,10 @@ class ScoreManager {
         self.highScore = UserDefaults.standard.integer(forKey: highScoreKey)
     }
     
-    // Comparing the current high score with any new highScore that saved if it is scored higher
+    /// Comparing the current high score with any new highScore that saved if it is scored higher
     func updateHighScore(with currentScore: Int) {
         
-        // Only update score if the new score exceeds the existing record.
+        /// Only update score if the new score exceeds the existing record.
         if currentScore > highScore {
             highScore = currentScore
             UserDefaults.standard.set(highScore, forKey: highScoreKey)

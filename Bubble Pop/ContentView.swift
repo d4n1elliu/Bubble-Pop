@@ -54,7 +54,7 @@ struct ContentView: View {
             }
             .padding(40)
             
-            // Navigation modifiers belong INSIDE the stack on the main view
+            /// Navigation modifiers belong INSIDE the stack on the main view
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
         }
