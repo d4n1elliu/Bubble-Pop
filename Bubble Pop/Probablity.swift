@@ -10,6 +10,7 @@ import UIKit
 enum BubbleColours {
     case red, pink, green, blue, black
     
+    /// Bubble color
     var colour: UIColor {
         switch self {
         case .red:
@@ -25,6 +26,7 @@ enum BubbleColours {
         }
     }
     
+    /// Points rewarded based on color 
     var points: Int {
         switch self {
         case .pink:
@@ -42,19 +44,19 @@ enum BubbleColours {
 }
 
 func generateBubbleColor() -> BubbleColours {
-    // Probablity chances for bubble spawn
+    /// Probablity chances for bubble spawn
     let randomNumber = Int.random(in: 0..<100)
 
     switch randomNumber {
-    case 0..<40:   // 0 to 39 (40% chance)
+    case 0..<40:   /// 0 to 39 (40% chance)
         return .red
-    case 40..<70:  // 40 to 69 (30% chance)
+    case 40..<70:  /// 40 to 69 (30% chance)
         return .pink
-    case 70..<85:  // 70 to 84 (15% chance)
+    case 70..<85:  /// 70 to 84 (15% chance)
         return .green
-    case 85..<95:  // 85 to 94 (10% chance)
+    case 85..<95:  /// 85 to 94 (10% chance)
         return .blue
-    default:       // 95 to 99 (5% chance)
+    default:       /// 95 to 99 (5% chance)
         return .black
     }
 }

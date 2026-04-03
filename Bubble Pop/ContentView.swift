@@ -33,7 +33,7 @@ struct ContentView: View {
                 .buttonStyle(.borderedProminent)
                 .padding(.horizontal, 40)
                 
-                Spacer() // Pushes content to the middle from the bottom
+                Spacer() /// Pushes content to the middle from the bottom
             }
             /// You can keep a small title or hide it
             .navigationBarTitleDisplayMode(.inline)

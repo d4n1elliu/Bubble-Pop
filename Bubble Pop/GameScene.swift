@@ -12,7 +12,7 @@ import Observation
 @Observable
 class GameScene: SKScene {
     
-    /// 1. Add this closure to talk to SwiftUI
+    ///Add this closure to talk to SwiftUI
     var onReturnHome: (() -> Void)?
     
     /// Referencing data collecting model
@@ -73,11 +73,9 @@ class GameScene: SKScene {
         bubble.name = Constants.bubbleName
         
         /// Probability Logic
-        let bubbleType = generateBubbleColor() // This returns a BubbleColours enum
+        let bubbleType = generateBubbleColor()
         
-        // FIX 1: Use the .colour property to get the actual UIColor
         bubble.fillColor = bubbleType.colour
-        
         bubble.lineWidth = Constants.bubbleWidth
         bubble.alpha = Constants.bubbleAlpha
         
@@ -115,7 +113,7 @@ class GameScene: SKScene {
         for node in tappedNodes {
             if node.name == Constants.bubbleName {
                 
-                // 1. Retrieve the points you just saved
+                /// Retrieved the points the user just saved
                 if let bubblePoints = node.userData?["points"] as? Int {
                     playerScore?.currentScore += bubblePoints
                 } else {
@@ -159,13 +157,13 @@ class GameScene: SKScene {
                 scoreBoard.zPosition = 100
                 addChild(scoreBoard)
                 
-                // Trigger the SwiftUI overlay
+                /// Triggers the SwiftUI overlay
                 onReturnHome?()
             }
         }
     }
     
-    /// TIMER LOGIC
+    /// Time Logic
     func startTimer() {
         stopTimer() /// Stop any existing timer first
         playTime = 60 /// Resetting the time to 60 seconds
@@ -184,7 +182,6 @@ class GameScene: SKScene {
             }
         }
     }
-    
     
     func stopTimer() {
         gameTimer?.invalidate()
@@ -208,14 +205,14 @@ class GameScene: SKScene {
         }
         startTimer()
     }
-    // Clean up timer when scene is removed
+    /// Clean up timer when scene is removed
     override func willMove(from view: SKView) {
         stopTimer()
     }
 }
 
 
-/// A SwiftUI wrapper that configures and presents the GameScene.
+/// SwiftUI wrapper that configures and presents the GameScene.
 struct GameView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PlayerData.self) private var playerData /// Access the shared data
@@ -234,7 +231,7 @@ struct GameView: View {
             SpriteView(scene: gameScene)
                 .ignoresSafeArea()
                 .onAppear {
-                    // 3. Link the data model to the scene
+                    /// Linking the data model to the scene
                     gameScene.playerScore = playerData
                     
                     gameScene.onReturnHome = {
@@ -282,7 +279,7 @@ struct GameView: View {
                 VStack(spacing: 20) {
                     Spacer()
                     
-                    /// 4. Display the score at the end
+                    /// Display the score at end screen
                     VStack {
                         Text("Final Score")
                             .font(.title2)
@@ -292,7 +289,7 @@ struct GameView: View {
                     }
                     .transition(.scale.combined(with: .opacity))
                     
-                    // --- NEW RESTART BUTTON ---
+                    /// Restart Button
                     Button(action: {
                         playerData.resetGame()           /// Reset score to 0
                         gameScene.restartGameSession()   /// Clear scene and spawn new bubbles
@@ -311,11 +308,12 @@ struct GameView: View {
                     .padding(.horizontal, 20)
                     
                     Button(action: {
-                        /// Clear the "Game Over" label and nodes
+                        /// Clearing "Game Over" label and nodes
                         gameScene.resetGameScene()
-                        playerData.resetGame() /// Reset the score
+                        playerData.resetGame() /// Resetting the score
                         dismiss()
                     }) {
+                        /// Return to Home
                         Text("Return to Home")
                             .font(.headline)
                             .foregroundColor(.white)
