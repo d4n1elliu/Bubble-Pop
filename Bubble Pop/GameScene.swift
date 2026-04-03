@@ -166,12 +166,13 @@ struct GameView: View {
     
     var body: some View {
         ZStack {
+            /// The Game Layer
             SpriteView(scene: gameScene)
                 .ignoresSafeArea()
                 .onAppear {
                     gameScene.playerScore = playerData
                     gameScene.onReturnHome = {
-                        withAnimation { showReturnButton = true }
+                        withAnimation(.spring()) { showReturnButton = true }
                     }
                 }
             
@@ -179,46 +180,89 @@ struct GameView: View {
             VStack {
                 HStack {
                     Text("Score: \(playerData.currentScore)")
-                    Spacer()
+                    
+                    Spacer() /// Pushes High Score to center
+                    
+                    Text("High Score: \(scoreManager.highScore)")
+                    
+                    Spacer() /// Pushes Time to right
+                    
                     Text("Time: \(gameScene.playTime)")
                         .foregroundColor(gameScene.playTime <= 10 ? .red : .primary)
                 }
                 .font(.system(.headline, design: .rounded))
-                .padding()
+                .padding(.horizontal)
+                .padding(.top, 10)
+                
                 Spacer()
             }
             .allowsHitTesting(false)
             
             /// End Screen Overlay
             if showReturnButton {
-                VStack(spacing: 25) {
-                    Text(gameScene.playTime <= 0 ? "TIME'S UP!" : "WELL DONE!")
-                        .font(.system(size: 40, weight: .black))
+                ZStack {
+                    /// Dimming Layer
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
                     
-                    VStack(spacing: 5) {
-                        Text("Final Score")
-                        Text("\(playerData.currentScore)")
-                            .font(.system(size: 60, weight: .light))
+                    /// Minimalist Card
+                    VStack(spacing: 32) {
+                        Text(gameScene.playTime <= 0 ? "TIME'S UP!" : "GOOD JOB!")
+                            .font(.system(size: 32, weight: .black, design: .rounded))
                         
-                        Text("Personal Best: \(scoreManager.highScore)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        VStack(spacing: 4) {
+                            Text("FINAL SCORE")
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .tracking(2)
+                            
+                            Text("\(playerData.currentScore)")
+                                .font(.system(size: 80, weight: .black, design: .rounded))
+                            
+                            Text("PERSONAL BEST: \(scoreManager.highScore)")
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .tracking(2)
+                        }
+                        
+                        /// Custom Pill Buttons
+                        VStack(spacing: 14) {
+                            Button(action: {
+                                withAnimation {
+                                    playerData.currentScore = 0
+                                    showReturnButton = false
+                                    gameScene.restartGameSession()
+                                }
+                            }) {
+                                Text("Restart Game")
+                                    .font(.system(.headline, design: .rounded).bold())
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 18)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .clipShape(Capsule())
+                            }
+                            
+                            Button(action: {
+                                playerData.currentScore = 0
+                                dismiss()
+                            }) {
+                                Text("Main Menu")
+                                    .font(.system(.headline, design: .rounded).bold())
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 18)
+                                    .background(.ultraThinMaterial)
+                                    .foregroundColor(.primary)
+                                    .clipShape(Capsule())
+                            }
+                        }
                     }
-                    
-                    Button("Restart Game") {
-                        playerData.currentScore = 0
-                        showReturnButton = false
-                        gameScene.restartGameSession()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    
-                    Button("Main Menu") {
-                        playerData.currentScore = 0
-                        dismiss()
-                    }
+                    .padding(35)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 35, style: .continuous))
+                    .shadow(color: .black.opacity(0.15), radius: 30, x: 0, y: 20)
+                    .padding(.horizontal, 40)
                 }
-                .padding(40)
-                .background(RoundedRectangle(cornerRadius: 25).fill(.white).shadow(radius: 10))
                 .onAppear {
                     scoreManager.updateHighScore(with: playerData.currentScore)
                 }
