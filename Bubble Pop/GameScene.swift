@@ -21,7 +21,7 @@ class GameScene: SKScene {
     /// Timer property
     var gameTimer: Timer?
     
-    /// Total play time in seconds
+    /// Remaining time in seconds and triggers endgame logic when reaching zero.
     var playTime = 60 {
         didSet {
             if playTime <= 0 {
@@ -31,6 +31,7 @@ class GameScene: SKScene {
         }
     }
     
+    ///. Perform initial scene setup and start the game.
     override func didMove(to view: SKView) {
         setupPhysics()
         startTimer()
@@ -44,6 +45,7 @@ class GameScene: SKScene {
         static let bubbleName = "Bubbles"
     }
     
+    /// Configures scene physics and initialises the game world.
     func setupPhysics() {
         physicsWorld.gravity = .zero
         physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
@@ -53,6 +55,7 @@ class GameScene: SKScene {
         }
     }
     
+    /// Spawns a bubble with randomised properties and initial physics impulse.
     func generatingBubbles() {
         let bubble = SKShapeNode(circleOfRadius: Constants.bubbleRadius)
         bubble.name = Constants.bubbleName
@@ -83,6 +86,7 @@ class GameScene: SKScene {
         bubble.physicsBody?.applyImpulse(CGVector(dx: randomX, dy: randomY))
     }
     
+    /// Handles bubble popping logic and score updates.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
@@ -103,6 +107,7 @@ class GameScene: SKScene {
         }
     }
     
+    /// Evaluates remaining bubbles to determine if an win condition is met.
     func checkRemainingBubbles() {
         let remainingBubbles = children.filter { $0.name == Constants.bubbleName }
         if remainingBubbles.isEmpty {
@@ -110,11 +115,13 @@ class GameScene: SKScene {
         }
     }
     
+    /// Terminates the game session and triggers the home transition.
     func triggerEndGame() {
         stopTimer()
-        onReturnHome?() // Triggers SwiftUI Overlay
+        onReturnHome?() /// Triggers SwiftUI Overlay
     }
     
+    /// Stat game session countdown
     func startTimer() {
         stopTimer()
         playTime = 60
@@ -133,6 +140,7 @@ class GameScene: SKScene {
         gameTimer = nil
     }
     
+    /// Resets the scene state and begins a fresh game session.
     func restartGameSession() {
         self.removeAllChildren()
         setupPhysics()
@@ -140,13 +148,14 @@ class GameScene: SKScene {
     }
 }
 
-/// GameView Scene
+/// The root view for the bubble-popping game, bridging SpriteKit and SwiftUI.
 struct GameView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PlayerData.self) private var playerData
     @Environment(ScoreManager.self) private var scoreManager
     @State private var showReturnButton = false
     
+    /// Configures the SpriteKit scene with appropriate scaling and background.
     @State private var gameScene: GameScene = {
         let scene = GameScene()
         scene.size = CGSize(width: 400, height: 700)
@@ -166,7 +175,7 @@ struct GameView: View {
                     }
                 }
             
-            // HUD (Top Bar) - Allows clicks to pass through to bubbles
+            /// HUD (Top Bar)
             VStack {
                 HStack {
                     Text("Score: \(playerData.currentScore)")
@@ -180,7 +189,7 @@ struct GameView: View {
             }
             .allowsHitTesting(false)
             
-            // GAME OVER OVERLAY
+            /// End Screen Overlay
             if showReturnButton {
                 VStack(spacing: 25) {
                     Text(gameScene.playTime <= 0 ? "TIME'S UP!" : "WELL DONE!")
@@ -219,6 +228,7 @@ struct GameView: View {
     }
 }
 
+/// Injecting dependencies for preview rendering.
 #Preview {
     ContentView()
     .environment(PlayerData())
