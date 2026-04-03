@@ -8,8 +8,8 @@
 import Foundation
 import Observation
 
-/// A centralized data model to manage player information across different screens.
-/// Using @Observable allows SwiftUI views to update automatically when the name changes.
+/// A centralised data model to manage player information across different screens.
+/// Using @Observable to allow SwiftUI to view and update automatically when the name changes.
 @Observable
 class PlayerData {
     /// Name entered by the player before starting the game.
