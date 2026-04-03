@@ -24,7 +24,7 @@ struct ContentView: View {
                     .textFieldStyle(.roundedBorder)
                     .padding(.horizontal, 40)
                 
-                // Change GameScene() to GameView()
+                /// Change GameScene() to GameView()
                 NavigationLink(destination: GameView()) {
                     Text("Start Game")
                         .fontWeight(.bold)
