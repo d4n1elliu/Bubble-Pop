@@ -9,71 +9,57 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @State private var playerName: String = "" /// To add player name
-
+    @State private var playerName: String = ""
+    
     var body: some View {
-        NavigationStack { /// Use NavigationStack for a single-column game flow
-            ZStack {
-                /// Full Screen Seamless Background
-                Color.white.opacity(0.95).ignoresSafeArea()
+        NavigationStack {
+            VStack(spacing: 35) {
+                Spacer()
                 
-                /// The Redesigned Content Card
-                VStack(spacing: 35) {
+                Text("Bubble Pop")
+                    .font(.system(size: 48, weight: .heavy, design: .rounded))
+                    .foregroundColor(.primary)
+                
+                VStack(spacing: 12) {
+                    Text("PLAYER NAME")
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .tracking(2)
                     
-                    Spacer() /// Pushes content to the center from top
-                    
-                    /// App Title (Updated Typography to match end screen design)
-                    Text("Bubble Pop")
-                        .font(.system(size: 48, weight: .heavy, design: .rounded))
-                        .foregroundColor(.primary)
-                    
-                    /// User Input Section
-                    VStack(spacing: 12) {
-                        Text("PLAYER NAME")
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
-                            .foregroundColor(.secondary)
-                            .tracking(2)
-                        
-                        TextField("Enter your name", text: $playerName)
-                            .font(.system(.headline, design: .rounded))
-                            .multilineTextAlignment(.center)
-                            .padding()
-                            .frame(height: 55)
-                            /// "Frosted glass" field aesthetic
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 15))
-                            .padding(.horizontal, 40)
-                    }
-                    
-                    /// Custom Pill Action Button
-                    NavigationLink(destination: GameView()) {
-                        Text("Start Game")
-                            .font(.system(.headline, design: .rounded).bold())
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 18)
-                            .background(playerName.isEmpty ? Color.gray : Color.blue)
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
-                        /// Subtle shadow to match restart button
-                            .shadow(color: playerName.isEmpty ? .clear : .blue.opacity(0.3), radius: 10, x: 0, y: 5)
-                    }
-                    .padding(.horizontal, 40)
-                    /// Disables start until a name is entered
-                    .disabled(playerName.isEmpty)
-                    
-                    Spacer() /// Pushes content to the center from bottom
+                    TextField("Enter your name", text: $playerName)
+                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .multilineTextAlignment(.center)
+                        .padding()
+                        .frame(height: 55)
+                        .background(Color.black.opacity(0.05), in: RoundedRectangle(cornerRadius: 15))
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled(true)
+                        .padding(.horizontal, 70)
                 }
-                .padding(40)
-                /// Added "Apple" Materials look to the card itself
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 30, style: .continuous))
-                .shadow(color: .black.opacity(0.1), radius: 25, x: 0, y: 15)
-                .padding(.horizontal, 25)
+                
+                NavigationLink(destination: GameView()) {
+                    Text("Start Game")
+                        .font(.system(.headline, design: .rounded).bold())
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .background(playerName.isEmpty ? Color.gray : Color.blue)
+                        .foregroundColor(.white)
+                        .clipShape(Capsule())
+                        .shadow(color: playerName.isEmpty ? .clear : .blue.opacity(0.3), radius: 10, x: 0, y: 5)
+                }
+                .padding(.horizontal, 70)
+                .disabled(playerName.isEmpty)
+                
+                Spacer()
             }
+            .padding(40)
+            
+            // Navigation modifiers belong INSIDE the stack on the main view
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden(true) /// Keeps look minimal
+            .navigationBarBackButtonHidden(true)
         }
     }
 }
-
 #Preview {
     ContentView()
         .environment(PlayerData())
