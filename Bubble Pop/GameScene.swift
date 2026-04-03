@@ -38,17 +38,22 @@ class GameScene: SKScene {
     }
     
     private enum Constants {
-        static let bubbleCount = 5
-        static let bubbleRadius: CGFloat = 30
+        static let bubbleCount = 15
+        static let bubbleRadius: CGFloat = 45
         static let bubbleAlpha: CGFloat = 0.7
-        static let bubbleWidth : CGFloat = 2
+        static let bubbleWidth : CGFloat = 2.5
         static let bubbleName = "Bubbles"
     }
     
     /// Configures scene physics and initialises the game world.
     func setupPhysics() {
         physicsWorld.gravity = .zero
-        physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+        let physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+        
+        physicsBody.friction = 0
+        physicsBody.restitution = 1.0
+        
+        self.physicsBody = physicsBody
         
         for _ in 0..<Constants.bubbleCount {
             generatingBubbles()
@@ -59,6 +64,9 @@ class GameScene: SKScene {
     func generatingBubbles() {
         let bubble = SKShapeNode(circleOfRadius: Constants.bubbleRadius)
         bubble.name = Constants.bubbleName
+        
+        bubble.xScale = 1.0
+        bubble.yScale = 1.0
         
         let bubbleType = generateBubbleColor()
         bubble.fillColor = bubbleType.colour
@@ -159,7 +167,7 @@ struct GameView: View {
     @State private var gameScene: GameScene = {
         let scene = GameScene()
         scene.size = CGSize(width: 400, height: 700)
-        scene.scaleMode = .fill
+        scene.scaleMode = .resizeFill
         scene.backgroundColor = .white
         return scene
     }()
