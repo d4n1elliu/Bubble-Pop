@@ -37,4 +37,9 @@ class ScoreManager {
             UserDefaults.standard.set(highScore, forKey: highScoreKey)
         }
     }
+    
+    func resetHighScore() {
+        highScore = 0
+        UserDefaults.standard.set(highScore, forKey: highScoreKey)
+    }
 }
