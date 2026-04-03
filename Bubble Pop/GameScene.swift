@@ -39,7 +39,7 @@ class GameScene: SKScene {
     
     private enum Constants {
         static let bubbleCount = 15
-        static let bubbleRadius: CGFloat = 45
+        static let bubbleRadius: CGFloat = 30
         static let bubbleAlpha: CGFloat = 0.7
         static let bubbleWidth : CGFloat = 2.5
         static let bubbleName = "Bubbles"
