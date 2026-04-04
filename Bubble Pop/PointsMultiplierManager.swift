@@ -11,20 +11,20 @@ import Combine
 
 class PointsMultiplierManager: ObservableObject {
     @Published var currentMultiplier: Double = 1.0
-    private var lastColor: Color?
+    private var lastColor: UIColor?
     
     /// Logic to update score based on bubble color matching
-    func calculatePoints(for color: Color, basePoints: Double = 1.0) -> Double {
-        if let lastColor = lastColor, lastColor == color {
-            // Increase multiplier by 1.5x for same color match
-            currentMultiplier *= 1.5
-        } else {
-            // Reset multiplier if color changes
-            currentMultiplier = 1.0
+    func calculatePoints(for color: UIColor, basePoints: Int) -> Int {
+        var multiplier: Double = 1.0
+        
+        // Convert current UIColor to a SwiftUI Color or compare UIColors directly
+        if let last = lastColor, last == color {
+            multiplier = 1.5
         }
         
         lastColor = color
-        return basePoints * currentMultiplier
+        let finalValue = Double(basePoints) * multiplier
+        return Int(finalValue.rounded())
     }
     
     func resetMultiplier() {

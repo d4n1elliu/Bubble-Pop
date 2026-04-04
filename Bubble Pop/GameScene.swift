@@ -18,6 +18,8 @@ class GameScene: SKScene {
     /// Referencing data collecting model
     var playerScore: PlayerData?
     
+    let multiplierManager = PointsMultiplierManager()
+    
     /// Timer property
     var gameTimer: Timer?
     
@@ -31,7 +33,7 @@ class GameScene: SKScene {
         }
     }
     
-    ///. Perform initial scene setup and start the game.
+    /// Perform initial scene setup and start the game.
     override func didMove(to view: SKView) {
         setupPhysics()
         startTimer()
@@ -74,7 +76,10 @@ class GameScene: SKScene {
         bubble.alpha = Constants.bubbleAlpha
         
         let points = bubbleType.points
-        bubble.userData = ["points": points as NSNumber]
+        bubble.userData = [
+            "points": points as NSNumber,
+            "color": bubbleType.colour
+        ]
         
         bubble.position = CGPoint(
             x: CGFloat.random(in: Constants.bubbleRadius...frame.width - Constants.bubbleRadius),
@@ -101,23 +106,35 @@ class GameScene: SKScene {
         let tappedNodes = nodes(at: location)
         
         for node in tappedNodes where node.name == Constants.bubbleName {
-            if let bubblePoints = node.userData?["points"] as? Int {
-                playerScore?.currentScore += bubblePoints
-            }
-            
-            let scaleOut = SKAction.scale(to: 1.2, duration: 0.1)
-            let fadeOut = SKAction.fadeOut(withDuration: 0.1)
-            let remove = SKAction.removeFromParent()
-            
-            node.run(SKAction.sequence([scaleOut, fadeOut, remove])) { [weak self] in
-                self?.checkRemainingBubbles()
+            if let bubblePoints = node.userData?["points"] as? Int,
+               let bubbleColor = node.userData?["color"] as? UIColor {
+                
+                /// Calculate points with multiplier
+                let pointsToAdd = multiplierManager.calculatePoints(for: bubbleColor, basePoints: bubblePoints)
+                
+                /// Update the Environment Object
+                playerScore?.currentScore += pointsToAdd
+                
+                /// Update High Score in ScoreManager
+                playerScore?.scoreManager.updateHighScore(with: playerScore?.currentScore ?? 0)
+                
+                /// Run animation and remove bubbles are popped
+                let scaleOut = SKAction.scale(to: 1.2, duration: 0.1)
+                let fadeOut = SKAction.fadeOut(withDuration: 0.1)
+                let remove = SKAction.removeFromParent()
+                
+                node.run(SKAction.sequence([scaleOut, fadeOut, remove])) { [weak self] in
+                    self?.checkRemainingBubbles()
+                }
             }
         }
     }
     
     /// Evaluates remaining bubbles to determine if an win condition is met.
     func checkRemainingBubbles() {
-        let remainingBubbles = children.filter { $0.name == Constants.bubbleName }
+        let remainingBubbles = children.filter {
+            $0.name == Constants.bubbleName && $0.alpha > 0.1
+        }
         if remainingBubbles.isEmpty {
             triggerEndGame()
         }
@@ -161,6 +178,7 @@ struct GameView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(PlayerData.self) private var playerData
     @Environment(ScoreManager.self) private var scoreManager
+    
     @State private var showReturnButton = false
     
     /// Configures the SpriteKit scene with appropriate scaling and background.
@@ -180,7 +198,9 @@ struct GameView: View {
                 .onAppear {
                     gameScene.playerScore = playerData
                     gameScene.onReturnHome = {
-                        withAnimation(.spring()) { showReturnButton = true }
+                        withAnimation(.spring()) {
+                            showReturnButton = true
+                        }
                     }
                 }
             

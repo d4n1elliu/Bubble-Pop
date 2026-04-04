@@ -18,6 +18,8 @@ class PlayerData {
     /// Current score achieved during the game session.
     var currentScore: Int = 0
     
+    var scoreManager = ScoreManager()
+    
     /// Resets the game state for a new session.
     func resetGame() {
         currentScore = 0
