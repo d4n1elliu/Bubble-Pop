@@ -13,10 +13,10 @@ BubblePop is an interactive, casual iOS game developed in swift. This game chall
 
 - Dynamic Bubble Generation: Bubbles appear at random positions on the screen without overlapping or touching the edges. 
 - Score System: Each bubble color represents a different point value and probability for appearing.
-- Combo Bonus: Popping two or more bubbles of the same color consecutively earns a 1.5x multiplier for the subsequent bubbles .
+- Combo Bonus: Popping two or more bubbles of the same color consecutively will earn a 1.5x multiplier for the subsequent bubbles.
 
 ## ⚙️ Features
-- Customizable Settings: Players can adjust the game duration (60 seconds) default and the maximum number of bubbles displayed simultaneously (15 seconds).  
+- Customisable Settings: Players can adjust the game duration (60 seconds) default and the maximum number of bubbles displayed simultaneously (15 seconds).  
 - Persistent Leaderboard: Player names and high scores are saved locally and displayed on a scoreboard at the end of each game.  
 - Adaptive Design: Functional across different iOS devices (iPhone/iPad) and screen orientations.  
 
