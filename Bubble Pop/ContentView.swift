@@ -16,10 +16,12 @@ struct ContentView: View {
             VStack(spacing: 35) {
                 Spacer()
                 
+                /// Game title 
                 Text("Bubble Pop")
                     .font(.system(size: 48, weight: .heavy, design: .rounded))
                     .foregroundColor(.primary)
                 
+                /// Enter player name inputs
                 VStack(spacing: 12) {
                     Text("PLAYER NAME")
                         .font(.system(size: 12, weight: .bold, design: .rounded))
@@ -37,6 +39,7 @@ struct ContentView: View {
                         .padding(.horizontal, 70)
                 }
                 
+                /// Start game button
                 NavigationLink(destination: GameView()) {
                     Text("Start Game")
                         .font(.system(.headline, design: .rounded).bold())
@@ -60,6 +63,8 @@ struct ContentView: View {
         }
     }
 }
+
+/// Rendering for app preview 
 #Preview {
     ContentView()
         .environment(PlayerData())
