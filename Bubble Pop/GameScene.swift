@@ -70,17 +70,20 @@ class GameScene: SKScene {
         bubble.xScale = 1.0
         bubble.yScale = 1.0
         
-        let bubbleType = generateBubbleColor()
+        let bubbleType = BubbleProbability.generateBubbleColor()
         bubble.fillColor = bubbleType.colour
         bubble.lineWidth = Constants.bubbleWidth
         bubble.alpha = Constants.bubbleAlpha
         
         let points = bubbleType.points
+        
+        /// Store data for multiplier manager
         bubble.userData = [
             "points": points as NSNumber,
             "color": bubbleType.colour
         ]
         
+        /// Bubble positioning and physics
         bubble.position = CGPoint(
             x: CGFloat.random(in: Constants.bubbleRadius...frame.width - Constants.bubbleRadius),
             y: CGFloat.random(in: Constants.bubbleRadius...frame.height - Constants.bubbleRadius)
@@ -94,6 +97,7 @@ class GameScene: SKScene {
         
         addChild(bubble)
         
+        /// Iniital bubble movement
         let randomX = CGFloat.random(in: -100...100)
         let randomY = CGFloat.random(in: -100...100)
         bubble.physicsBody?.applyImpulse(CGVector(dx: randomX, dy: randomY))
@@ -303,6 +307,6 @@ struct GameView: View {
 /// Injecting dependencies for preview rendering.
 #Preview {
     ContentView()
-    .environment(PlayerData())
-    .environment(ScoreManager())
+        .environment(PlayerData())
+        .environment(ScoreManager())
 }

@@ -7,57 +7,67 @@
 
 import UIKit
 
-enum BubbleColours {
-    case red, pink, green, blue, black
+struct BubbleProbability {
     
-    /// Bubble color
-    var colour: UIColor {
-        switch self {
-        case .red:
-            return .red
-        case .pink:
-            return .systemPink
-        case .green:
-            return .systemGreen
-        case .blue:
-            return .systemBlue
-        case .black:
-            return .black
-        }
+    /// Points for different bubble colour
+    private enum Points {
+        static let red = 1
+        static let pink = 2
+        static let green = 5
+        static let blue = 8
+        static let black = 10
     }
     
-    /// Points rewarded based on color 
-    var points: Int {
-        switch self {
-        case .pink:
-            return 2
-        case .green:
-            return 5
-        case .blue:
-            return 8
-        case .black:
-            return 10
-        default:
-            return 1
-        }
+    /// Bubbles probablity percentage
+    private enum ProbablityPercentage {
+        static let red = 40
+        static let pink = 30
+        static let green = 15
+        static let blue = 10
+        static let black = 5
     }
-}
-
-func generateBubbleColor() -> BubbleColours {
-    /// Probablity chances for bubble spawn
-    let randomNumber = Int.random(in: 0..<100)
-
-    switch randomNumber {
-    case 0..<40:   /// 0 to 39 (40% chance)
-        return .red
-    case 40..<70:  /// 40 to 69 (30% chance)
-        return .pink
-    case 70..<85:  /// 70 to 84 (15% chance)
-        return .green
-    case 85..<95:  /// 85 to 94 (10% chance)
-        return .blue
-    default:       /// 95 to 99 (5% chance)
-        return .black
+    
+    /// Bubble properties
+    let colour: UIColor
+    let points: Int
+    let probablityForAppearance: Int
+    
+    /// Static data type for bubble properties
+    static let allTypes: [BubbleProbability] = [
+        BubbleProbability(colour: .red,
+                          points: Points.red,
+                          probablityForAppearance: ProbablityPercentage.red),
+        BubbleProbability(colour: .systemPink,
+                          points: Points.pink,
+                          probablityForAppearance: ProbablityPercentage.pink),
+        BubbleProbability(colour: .green,
+                          points: Points.green,
+                          probablityForAppearance: ProbablityPercentage.green),
+        BubbleProbability(colour: .systemBlue,
+                          points: Points.blue,
+                          probablityForAppearance: ProbablityPercentage.blue),
+        BubbleProbability(colour: .black,
+                          points: Points.black,
+                          probablityForAppearance: ProbablityPercentage.black)
+    ]
+    
+    static func generateBubbleColor() -> BubbleProbability {
+        /// Calculate the total probablity up to 100%
+        let probablityCheck = allTypes.reduce(0) { $0 + $1.probablityForAppearance }
+        
+        /// Roll the dice
+        let randomNumber = Int.random(in: 1...probablityCheck)
+        
+        /// Find which "bracket" the random number falls into
+        var cumulativeWeight = 0
+        for bubbleType in allTypes {
+            cumulativeWeight += bubbleType.probablityForAppearance
+            if randomNumber <= cumulativeWeight {
+                return bubbleType
+            }
+        }
+        /// Fallback
+        return allTypes[0]
     }
 }
 
