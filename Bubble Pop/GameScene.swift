@@ -18,6 +18,8 @@ class GameScene: SKScene {
     /// Referencing data collecting model
     var playerScore: PlayerData?
     
+    var playerName: String = "Guest"
+    
     let multiplierManager = PointsMultiplierManager()
     
     /// Timer property
@@ -120,7 +122,7 @@ class GameScene: SKScene {
                 playerScore?.currentScore += pointsToAdd
                 
                 /// Update High Score in ScoreManager
-                playerScore?.scoreManager.updateHighScore(with: playerScore?.currentScore ?? 0)
+                playerScore?.scoreManager.updateHighScore(with: playerScore?.currentScore ?? 0, playerName: playerName)
                 
                 /// Run animation and remove bubbles are popped
                 let scaleOut = SKAction.scale(to: 1.2, duration: 0.1)
@@ -179,6 +181,8 @@ class GameScene: SKScene {
 
 /// The root view for the bubble-popping game, bridging SpriteKit and SwiftUI.
 struct GameView: View {
+    let playerName: String
+    
     @Environment(\.dismiss) private var dismiss
     @Environment(PlayerData.self) private var playerData
     @Environment(ScoreManager.self) private var scoreManager
@@ -195,134 +199,134 @@ struct GameView: View {
     }()
     
     var body: some View {
-            VStack(spacing: 0) {
-                /// HUD (Top Bar) - Default Background
-                HStack {
-                    VStack(alignment: .center, spacing: 6) {
-                        Text("Time Left")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text("\(gameScene.playTime)")
-                            .font(.system(size: 18, weight: .medium, design: .default))
-                            .foregroundColor(gameScene.playTime <= 10 ? .red : .primary)
-                    }
-                    
-                    Spacer() /// Pushes Score to Enter
-                    
-                    VStack(alignment: .center, spacing: 6) {
-                        Text("Score")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text("\(playerData.currentScore)")
-                            .font(.system(size: 18, weight: .medium, design: .default))
-                    }
-
-                    Spacer() /// Pushes High Score to Right
-                    
-                    VStack(alignment: .center, spacing: 6) {
-                        Text("High Score")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text("\(scoreManager.highScore)")
-                            .font(.system(size: 18, weight: .medium, design: .default))
-                    }
+        VStack(spacing: 0) {
+            /// HUD (Top Bar) - Default Background
+            HStack {
+                VStack(alignment: .center, spacing: 6) {
+                    Text("Time Left")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("\(gameScene.playTime)")
+                        .font(.system(size: 18, weight: .medium, design: .default))
+                        .foregroundColor(gameScene.playTime <= 10 ? .red : .primary)
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 15)
-                .padding(.top, 10)
-                .background(Color(UIColor.systemBackground))
-
-                /// Game Layer - Pink Background
-                ZStack {
-                    /// Background Colour
-                    Color(red: 255/255, green: 240/255, blue: 240/255)
-                        .ignoresSafeArea(edges: .bottom)
-                    
-                    SpriteView(scene: gameScene, options: [.allowsTransparency])
-                        .onAppear {
-                            gameScene.playerScore = playerData
-                            gameScene.onReturnHome = {
-                                withAnimation(.spring()) {
-                                    showReturnButton = true
-                                }
-                            }
-                        }
+                
+                Spacer() /// Pushes Score to Enter
+                
+                VStack(alignment: .center, spacing: 6) {
+                    Text("Score")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("\(playerData.currentScore)")
+                        .font(.system(size: 18, weight: .medium, design: .default))
+                }
+                
+                Spacer() /// Pushes High Score to Right
+                
+                VStack(alignment: .center, spacing: 6) {
+                    Text("High Score")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("\(scoreManager.highScore)")
+                        .font(.system(size: 18, weight: .medium, design: .default))
                 }
             }
-            /// End Screen Overlays
-            .overlay {
-                if showReturnButton {
-                    ZStack {
-                        /// Dimming Layer
-                        Color.black.opacity(0.4)
-                            .ignoresSafeArea()
-                            .transition(.opacity)
-                        
-                        /// Minimalist Card
-                        VStack(spacing: 32) {
-                            Text(gameScene.playTime <= 0 ? "TIME'S UP!" : "GOOD JOB!")
-                                .font(.system(size: 32, weight: .black, design: .rounded))
-                            
-                            VStack(spacing: 4) {
-                                Text("FINAL SCORE")
-                                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                                    .foregroundColor(.secondary)
-                                    .tracking(2)
-                                
-                                Text("\(playerData.currentScore)")
-                                    .font(.system(size: 80, weight: .black, design: .rounded))
-                                
-                                Text("PERSONAL BEST: \(scoreManager.highScore)")
-                                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                                    .foregroundColor(.secondary)
-                                    .tracking(2)
-                            }
-                            
-                            /// Custom Pill Buttons
-                            VStack(spacing: 14) {
-                                Button(action: {
-                                    withAnimation {
-                                        playerData.currentScore = 0
-                                        showReturnButton = false
-                                        gameScene.restartGameSession()
-                                    }
-                                }) {
-                                    Text("Restart Game")
-                                        .font(.system(.headline, design: .rounded).bold())
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 18)
-                                        .background(Color.blue)
-                                        .foregroundColor(.white)
-                                        .clipShape(Capsule())
-                                }
-                                
-                                Button(action: {
-                                    playerData.currentScore = 0
-                                    dismiss()
-                                }) {
-                                    Text("Main Menu")
-                                        .font(.system(.headline, design: .rounded).bold())
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 18)
-                                        .background(.ultraThinMaterial)
-                                        .foregroundColor(.primary)
-                                        .clipShape(Capsule())
-                                }
-                            }
-                        }
-                        .padding(35)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 35, style: .continuous))
-                        .shadow(color: .black.opacity(0.15), radius: 30, x: 0, y: 20)
-                        .padding(.horizontal, 40)
-                    }
+            .padding(.horizontal)
+            .padding(.bottom, 15)
+            .padding(.top, 10)
+            .background(Color(UIColor.systemBackground))
+            
+            /// Game Layer - Pink Background
+            ZStack {
+                /// Background Colour
+                Color(red: 255/255, green: 240/255, blue: 240/255)
+                    .ignoresSafeArea(edges: .bottom)
+                
+                SpriteView(scene: gameScene, options: [.allowsTransparency])
                     .onAppear {
-                        scoreManager.updateHighScore(with: playerData.currentScore)
+                        gameScene.playerScore = playerData
+                        gameScene.onReturnHome = {
+                            withAnimation(.spring()) {
+                                showReturnButton = true
+                            }
+                        }
                     }
+            }
+        }
+        /// End Screen Overlays
+        .overlay {
+            if showReturnButton {
+                ZStack {
+                    /// Dimming Layer
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                    
+                    /// Minimalist Card
+                    VStack(spacing: 32) {
+                        Text(gameScene.playTime <= 0 ? "TIME'S UP!" : "GOOD JOB!")
+                            .font(.system(size: 32, weight: .black, design: .rounded))
+                        
+                        VStack(spacing: 4) {
+                            Text("FINAL SCORE")
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .tracking(2)
+                            
+                            Text("\(playerData.currentScore)")
+                                .font(.system(size: 80, weight: .black, design: .rounded))
+                            
+                            Text("PERSONAL BEST: \(scoreManager.highScore)")
+                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .tracking(2)
+                        }
+                        
+                        /// Custom Pill Buttons
+                        VStack(spacing: 14) {
+                            Button(action: {
+                                withAnimation {
+                                    playerData.currentScore = 0
+                                    showReturnButton = false
+                                    gameScene.restartGameSession()
+                                }
+                            }) {
+                                Text("Restart Game")
+                                    .font(.system(.headline, design: .rounded).bold())
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 18)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .clipShape(Capsule())
+                            }
+                            
+                            Button(action: {
+                                playerData.currentScore = 0
+                                dismiss()
+                            }) {
+                                Text("Main Menu")
+                                    .font(.system(.headline, design: .rounded).bold())
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 18)
+                                    .background(.ultraThinMaterial)
+                                    .foregroundColor(.primary)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                    }
+                    .padding(35)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 35, style: .continuous))
+                    .shadow(color: .black.opacity(0.15), radius: 30, x: 0, y: 20)
+                    .padding(.horizontal, 40)
+                }
+                .onAppear {
+                    scoreManager.updateHighScore(with: playerData.currentScore, playerName: playerName)
                 }
             }
-            .navigationBarBackButtonHidden(true)
+        }
+        .navigationBarBackButtonHidden(true)
     }
 }
 
 #Preview {
-    ContentView()
+    GameView(playerName: "Player 1")
         .environment(PlayerData())
         .environment(ScoreManager())
 }

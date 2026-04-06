@@ -12,33 +12,19 @@ import Observation
 /// This class uses @Observable macro to ensure SwiftUI can reactively view and update whenever a new highscore is achieved in the game
 @Observable
 class ScoreManager {
-    
-    /// A unique identifier or saving data to UserDefaults
-    private let highScoreKey: String
+    private let leaderboard = LeaderboardManager()
     
     /// Current highScore
-    /// This value synched with local storage
-    var highScore: Int = 0
-    
-    /// Initializes a new ScoreManager instance.
-    
-    init(key: String = "bubble_pop_highscore") {
-        self.highScoreKey = key
-        // Retrieve the previously saved score from the device's standard storage.
-        self.highScore = UserDefaults.standard.integer(forKey: highScoreKey)
+    var highScore: Int {
+        leaderboard.highestScore
     }
-    
     /// Comparing the current high score with any new highScore that saved if it is scored higher
-    func updateHighScore(with currentScore: Int) {
-        
-        /// Only update score if the new score exceeds the existing record.
-        if currentScore > highScore {
-            highScore = currentScore
-            UserDefaults.standard.set(highScore, forKey: highScoreKey)
-        }
+    func updateHighScore(with currentScore: Int, playerName: String) {
+        /// Passing the score to leaderboard to save it permanently
+        leaderboard.addScore(name: playerName, value: currentScore)
     }
     
-    func resetHighScore() {
-        UserDefaults.standard.set(highScore, forKey: highScoreKey)
+    var allScores: [GameScore] {
+        leaderboard.scores
     }
 }

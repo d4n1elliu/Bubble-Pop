@@ -40,7 +40,7 @@ struct ContentView: View {
                 }
                 
                 /// Start game button
-                NavigationLink(destination: GameView()) {
+                NavigationLink(destination: GameView(playerName: playerName)) {
                     Text("Start Game")
                         .font(.system(.headline, design: .rounded).bold())
                         .frame(maxWidth: .infinity)
