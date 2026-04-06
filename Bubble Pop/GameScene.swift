@@ -18,7 +18,7 @@ class GameScene: SKScene {
     /// Referencing data collecting model
     var playerScore: PlayerData?
     
-    var playerName: String = "Guest"
+    var playerName: String = ""
     
     let multiplierManager = PointsMultiplierManager()
     
@@ -188,6 +188,7 @@ struct GameView: View {
     @Environment(ScoreManager.self) private var scoreManager
     
     @State private var showReturnButton = false
+    @State private var showScoreBoard = false
     
     /// Configures the SpriteKit scene with appropriate scaling and background.
     @State private var gameScene: GameScene = {
@@ -242,6 +243,7 @@ struct GameView: View {
                 SpriteView(scene: gameScene, options: [.allowsTransparency])
                     .onAppear {
                         gameScene.playerScore = playerData
+                        gameScene.playerName = playerName
                         gameScene.onReturnHome = {
                             withAnimation(.spring()) {
                                 showReturnButton = true
@@ -260,9 +262,11 @@ struct GameView: View {
                         .transition(.opacity)
                     
                     /// Minimalist Card
-                    VStack(spacing: 32) {
-                        Text(gameScene.playTime <= 0 ? "TIME'S UP!" : "GOOD JOB!")
+                    VStack(spacing: 50) {
+                        Text(gameScene.playTime <= 0 ? "TIME'S UP, \(playerName.uppercased())" : "GOOD JOB!! \(playerName.uppercased())")
                             .font(.system(size: 32, weight: .black, design: .rounded))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
                         
                         VStack(spacing: 4) {
                             Text("FINAL SCORE")
@@ -298,6 +302,20 @@ struct GameView: View {
                             }
                             
                             Button(action: {
+                                withAnimation {
+                                    showScoreBoard = true
+                                }
+                            }) {
+                                Text("Show ScoreBoard")
+                                    .font(.system(.headline, design: .rounded).bold())
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 18)
+                                    .background(Color.orange)
+                                    .foregroundColor(.white)
+                                    .clipShape(Capsule())
+                            }
+                            
+                            Button(action: {
                                 playerData.currentScore = 0
                                 dismiss()
                             }) {
@@ -322,6 +340,9 @@ struct GameView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .sheet(isPresented: $showScoreBoard) {
+            ScoreBoardView()
+        }
     }
 }
 
