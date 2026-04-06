@@ -17,7 +17,7 @@ class PointsMultiplierManager: ObservableObject {
     func calculatePoints(for color: UIColor, basePoints: Int) -> Int {
         var multiplier: Double = 1.0
         
-        // Convert current UIColor to a SwiftUI Color or compare UIColors directly
+        /// Convert current UIColor to a SwiftUI Color or compare UIColors directly
         if let last = lastColor, last == color {
             multiplier = 1.5
         }
