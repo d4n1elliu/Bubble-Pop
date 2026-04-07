@@ -11,189 +11,91 @@ import Observation
 
 @Observable
 class GameScene: SKScene {
-    
-    /// Closure to trigger SwiftUI overlay
+    weak var controller: GameController?
+    var playerName: String = ""
     var onReturnHome: (() -> Void)?
     
-    /// Referencing data collecting model
-    var playerScore: PlayerData?
-    
-    var playerName: String = ""
-    
-    let multiplierManager = PointsMultiplierManager()
-    
-    /// Timer property
-    var gameTimer: Timer?
-    
-    /// Remaining time in seconds and triggers endgame logic when reaching zero.
-    var playTime = 60 {
-        didSet {
-            if playTime <= 0 {
-                stopTimer()
-                triggerEndGame()
-            }
-        }
-    }
-    
-    /// Perform initial scene setup and start the game.
-    override func didMove(to view: SKView) {
-        setupPhysics()
-        startTimer()
-    }
-    
     private enum Constants {
-        static let bubbleCount = 15
         static let bubbleRadius: CGFloat = 30
-        static let bubbleAlpha: CGFloat = 0.7
-        static let bubbleWidth : CGFloat = 2.5
         static let bubbleName = "Bubbles"
     }
     
-    /// Configures scene physics and initialises the game world.
-    func setupPhysics() {
-        physicsWorld.gravity = .zero
-        let physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
-        
-        physicsBody.friction = 0
-        physicsBody.restitution = 1.0
-        
-        self.physicsBody = physicsBody
-        
-        for _ in 0..<Constants.bubbleCount {
-            generatingBubbles()
-        }
+    override func didMove(to view: SKView) {
+        setupPhysics()
     }
     
-    /// Spawns a bubble with randomised properties and initial physics impulse.
+    override func didChangeSize(_ oldSize: CGSize) {
+        super.didChangeSize(oldSize)
+        setupPhysics()
+    }
+    
+    func setupPhysics() {
+        let borderBody = SKPhysicsBody(edgeLoopFrom: self.frame)
+        self.physicsBody = borderBody
+        self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+    }
+    
     func generatingBubbles() {
         let bubble = SKShapeNode(circleOfRadius: Constants.bubbleRadius)
         bubble.name = Constants.bubbleName
+        let type = BubbleProbability.generateBubbleColor()
         
-        bubble.xScale = 1.0
-        bubble.yScale = 1.0
+        bubble.fillColor = type.colour
+        bubble.userData = ["points": type.points, "color": type.colour]
         
-        let bubbleType = BubbleProbability.generateBubbleColor()
-        bubble.fillColor = bubbleType.colour
-        bubble.lineWidth = Constants.bubbleWidth
-        bubble.alpha = Constants.bubbleAlpha
-        
-        let points = bubbleType.points
-        
-        /// Store data for multiplier manager
-        bubble.userData = [
-            "points": points as NSNumber,
-            "color": bubbleType.colour
-        ]
-        
-        /// Bubble positioning and physics
         bubble.position = CGPoint(
             x: CGFloat.random(in: Constants.bubbleRadius...frame.width - Constants.bubbleRadius),
             y: CGFloat.random(in: Constants.bubbleRadius...frame.height - Constants.bubbleRadius)
         )
         
+        /// Physics Body setup
         bubble.physicsBody = SKPhysicsBody(circleOfRadius: Constants.bubbleRadius)
-        bubble.physicsBody?.restitution = 0.5
+        bubble.physicsBody?.restitution = 1.0
         bubble.physicsBody?.friction = 0
         bubble.physicsBody?.linearDamping = 0
         bubble.physicsBody?.allowsRotation = false
         
         addChild(bubble)
         
-        /// Iniital bubble movement
-        let randomX = CGFloat.random(in: -100...100)
-        let randomY = CGFloat.random(in: -100...100)
+        let randomX = CGFloat.random(in: -15...15)
+        let randomY = CGFloat.random(in: -15...15)
         bubble.physicsBody?.applyImpulse(CGVector(dx: randomX, dy: randomY))
     }
     
-    /// Handles bubble popping logic and score updates.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
         let tappedNodes = nodes(at: location)
         
         for node in tappedNodes where node.name == Constants.bubbleName {
-            if let bubblePoints = node.userData?["points"] as? Int,
-               let bubbleColor = node.userData?["color"] as? UIColor {
-                
-                /// Calculate points with multiplier
-                let pointsToAdd = multiplierManager.calculatePoints(for: bubbleColor, basePoints: bubblePoints)
-                
-                /// Update the Environment Object
-                playerScore?.currentScore += pointsToAdd
-                
-                /// Update High Score in ScoreManager
-                playerScore?.scoreManager.updateHighScore(with: playerScore?.currentScore ?? 0, playerName: playerName)
-                
-                /// Run animation and remove bubbles are popped
-                let scaleOut = SKAction.scale(to: 1.2, duration: 0.1)
-                let fadeOut = SKAction.fadeOut(withDuration: 0.1)
-                let remove = SKAction.removeFromParent()
-                
-                node.run(SKAction.sequence([scaleOut, fadeOut, remove])) { [weak self] in
-                    self?.checkRemainingBubbles()
-                }
+            if let pts = node.userData?["points"] as? Int,
+               let clr = node.userData?["color"] as? UIColor {
+                controller?.handleTap(points: pts, color: clr)
+                node.removeFromParent()
             }
         }
     }
     
-    /// Evaluates remaining bubbles to determine if an win condition is met.
-    func checkRemainingBubbles() {
-        let remainingBubbles = children.filter {
-            $0.name == Constants.bubbleName && $0.alpha > 0.1
-        }
-        if remainingBubbles.isEmpty {
-            triggerEndGame()
-        }
-    }
-    
-    /// Terminates the game session and triggers the home transition.
-    func triggerEndGame() {
-        stopTimer()
-        onReturnHome?() /// Triggers SwiftUI Overlay
-    }
-    
-    /// Stat game session countdown
-    func startTimer() {
-        stopTimer()
-        playTime = 60
-        gameTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
-            if self.playTime > 0 {
-                self.playTime -= 1
-            } else {
-                self.triggerEndGame()
-            }
-        }
-    }
-    
-    func stopTimer() {
-        gameTimer?.invalidate()
-        gameTimer = nil
-    }
-    
-    /// Resets the scene state and begins a fresh game session.
     func restartGameSession() {
         self.removeAllChildren()
         setupPhysics()
-        startTimer()
+        controller?.startGame()
     }
 }
 
 /// The root view for the bubble-popping game, bridging SpriteKit and SwiftUI.
 struct GameView: View {
     let playerName: String
-    
     @Environment(\.dismiss) private var dismiss
     @Environment(PlayerData.self) private var playerData
     @Environment(ScoreManager.self) private var scoreManager
     
     @State private var showReturnButton = false
     @State private var showScoreBoard = false
+    @State private var controller: GameController?
     
-    /// Configures the SpriteKit scene with appropriate scaling and background.
     @State private var gameScene: GameScene = {
         let scene = GameScene()
-        scene.size = CGSize(width: 400, height: 700)
         scene.scaleMode = .resizeFill
         scene.backgroundColor = SKColor(red: 255/255, green: 240/255, blue: 240/255, alpha: 1.0)
         return scene
@@ -201,147 +103,121 @@ struct GameView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            /// HUD (Top Bar) - Default Background
+            /// HUD
             HStack {
-                VStack(alignment: .center, spacing: 6) {
-                    Text("Time Left")
-                        .font(.system(size: 16, weight: .semibold))
-                    Text("\(gameScene.playTime)")
-                        .font(.system(size: 18, weight: .medium, design: .default))
-                        .foregroundColor(gameScene.playTime <= 10 ? .red : .primary)
-                }
-                
-                Spacer() /// Pushes Score to Enter
-                
-                VStack(alignment: .center, spacing: 6) {
-                    Text("Score")
-                        .font(.system(size: 16, weight: .semibold))
-                    Text("\(playerData.currentScore)")
-                        .font(.system(size: 18, weight: .medium, design: .default))
-                }
-                
-                Spacer() /// Pushes High Score to Right
-                
-                VStack(alignment: .center, spacing: 6) {
-                    Text("High Score")
-                        .font(.system(size: 16, weight: .semibold))
-                    Text("\(scoreManager.highScore)")
-                        .font(.system(size: 18, weight: .medium, design: .default))
-                }
+                statColumn(title: "Time Left", value: "\(controller?.playTime ?? 60)",
+                           color: (controller?.playTime ?? 60) <= 10 ? .red : .primary)
+                Spacer()
+                statColumn(title: "Score", value: "\(playerData.currentScore)")
+                Spacer()
+                statColumn(title: "High Score", value: "\(scoreManager.highScore)")
             }
-            .padding(.horizontal)
-            .padding(.bottom, 15)
-            .padding(.top, 10)
+            .padding()
             .background(Color(UIColor.systemBackground))
             
-            /// Game Layer - Pink Background
-            ZStack {
-                /// Background Colour
-                Color(red: 255/255, green: 240/255, blue: 240/255)
-                    .ignoresSafeArea(edges: .bottom)
-                
-                SpriteView(scene: gameScene, options: [.allowsTransparency])
-                    .onAppear {
-                        gameScene.playerScore = playerData
-                        gameScene.playerName = playerName
-                        gameScene.onReturnHome = {
-                            withAnimation(.spring()) {
-                                showReturnButton = true
-                            }
-                        }
-                    }
-            }
-        }
-        /// End Screen Overlays
-        .overlay {
-            if showReturnButton {
+            /// Game Layer
+            GeometryReader { geo in
                 ZStack {
-                    /// Dimming Layer
-                    Color.black.opacity(0.4)
-                        .ignoresSafeArea()
-                        .transition(.opacity)
-                    
-                    /// Minimalist Card
-                    VStack(spacing: 50) {
-                        Text(gameScene.playTime <= 0 ? "TIME'S UP, \(playerName.uppercased())" : "GOOD JOB!! \(playerName.uppercased())")
-                            .font(.system(size: 32, weight: .black, design: .rounded))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                        
-                        VStack(spacing: 4) {
-                            Text("FINAL SCORE")
-                                .font(.system(size: 15, weight: .bold, design: .rounded))
-                                .foregroundColor(.secondary)
-                                .tracking(2)
-                            
-                            Text("\(playerData.currentScore)")
-                                .font(.system(size: 80, weight: .black, design: .rounded))
-                            
-                            Text("PERSONAL BEST: \(scoreManager.highScore)")
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
-                                .foregroundColor(.secondary)
-                                .tracking(2)
+                    SpriteView(scene: gameScene, options: [.allowsTransparency])
+                        .onAppear {
+                            gameScene.size = geo.size
+                            setupGame()
                         }
-                        
-                        /// Custom Pill Buttons
-                        VStack(spacing: 14) {
-                            Button(action: {
-                                withAnimation {
-                                    playerData.currentScore = 0
-                                    showReturnButton = false
-                                    gameScene.restartGameSession()
-                                }
-                            }) {
-                                Text("Restart Game")
-                                    .font(.system(.headline, design: .rounded).bold())
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 18)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .clipShape(Capsule())
-                            }
-                            
-                            Button(action: {
-                                withAnimation {
-                                    showScoreBoard = true
-                                }
-                            }) {
-                                Text("Show ScoreBoard")
-                                    .font(.system(.headline, design: .rounded).bold())
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 18)
-                                    .background(Color.orange)
-                                    .foregroundColor(.white)
-                                    .clipShape(Capsule())
-                            }
-                            
-                            Button(action: {
-                                playerData.currentScore = 0
-                                dismiss()
-                            }) {
-                                Text("Main Menu")
-                                    .font(.system(.headline, design: .rounded).bold())
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 18)
-                                    .background(.ultraThinMaterial)
-                                    .foregroundColor(.primary)
-                                    .clipShape(Capsule())
-                            }
-                        }
-                    }
-                    .padding(35)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 35, style: .continuous))
-                    .shadow(color: .black.opacity(0.15), radius: 30, x: 0, y: 20)
-                    .padding(.horizontal, 40)
-                }
-                .onAppear {
-                    scoreManager.updateHighScore(with: playerData.currentScore, playerName: playerName)
                 }
             }
+            .ignoresSafeArea(edges: .bottom)
         }
         .navigationBarBackButtonHidden(true)
-        .sheet(isPresented: $showScoreBoard) {
-            ScoreBoardView()
+        .overlay {
+            if showReturnButton { endGameOverlay }
+        }
+        .sheet(isPresented: $showScoreBoard) { ScoreBoardView() }
+    }
+    
+    private func statColumn(title: String, value: String, color: Color = .primary) -> some View {
+        VStack(spacing: 6) {
+            Text(title).font(.system(size: 16, weight: .semibold))
+            Text(value).font(.system(size: 18, weight: .medium, design: .monospaced)).foregroundColor(color)
+        }
+    }
+    
+    private func setupGame() {
+    
+        if controller == nil {
+            controller = GameController(player: playerData, scoreManager: scoreManager)
+        }
+        
+        guard let gc = controller else { return }
+        
+        gameScene.controller = gc
+        gc.scene = gameScene
+        
+        gc.playerScore = Binding<Int>(
+            get: { playerData.currentScore },
+            set: { playerData.currentScore = $0 }
+        )
+        
+        gameScene.playerName = playerName
+        gameScene.onReturnHome = {
+            withAnimation(.spring()) {
+                showReturnButton = true
+                scoreManager.updateHighScore(with: playerData.currentScore, playerName: playerName)
+            }
+        }
+        
+        gc.startGame()
+    }
+    
+    private var endGameOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.4).ignoresSafeArea().transition(.opacity)
+            
+            VStack(spacing: 30) {
+                VStack(spacing: 10) {
+                    Text(controller?.playTime ?? 0 <= 0 ? "TIME'S UP!" : "GAME OVER")
+                        .font(.system(size: 32, weight: .black, design: .rounded))
+                    
+                    Text(playerName.uppercased())
+                        .font(.headline).foregroundColor(.secondary)
+                }
+                
+                VStack(spacing: 4) {
+                    Text("FINAL SCORE").font(.caption).bold().tracking(2)
+                    Text("\(playerData.currentScore)").font(.system(size: 70, weight: .black, design: .rounded))
+                }
+                
+                VStack(spacing: 12) {
+                    buttonCapsule("Restart Game", color: .blue) {
+                        playerData.currentScore = 0
+                        showReturnButton = false
+                        gameScene.restartGameSession()
+                    }
+                    
+                    buttonCapsule("Scoreboard", color: .orange) {
+                        showScoreBoard = true
+                    }
+                    
+                    buttonCapsule("Main Menu", color: .gray.opacity(0.2), textColor: .primary) {
+                        playerData.currentScore = 0
+                        dismiss()
+                    }
+                }
+            }
+            .padding(35)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 35))
+            .padding(.horizontal, 40)
+        }
+    }
+    
+    private func buttonCapsule(_ text: String, color: Color, textColor: Color = .white, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(text)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(color)
+                .foregroundColor(textColor)
+                .clipShape(Capsule())
         }
     }
 }

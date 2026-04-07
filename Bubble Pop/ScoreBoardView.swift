@@ -14,7 +14,6 @@ struct ScoreBoardView: View {
     var body: some View {
         NavigationStack {
             List {
-                // This loops through the scores in your LeaderboardManager
                 ForEach(scoreManager.allScores) { entry in
                     HStack {
                         Text(entry.playerName)

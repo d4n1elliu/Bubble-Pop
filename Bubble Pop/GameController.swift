@@ -15,6 +15,11 @@ class GameController {
     var player: PlayerData
     var scoreManager: ScoreManager
     weak var scene: GameScene?
+    
+    var playerScore: Binding<Int>?
+    
+    private var bubblesSpawned: Int = 0
+    private let maxBubbles: Int = 15
 
     init(player: PlayerData, scoreManager: ScoreManager) {
         self.player = player
@@ -24,9 +29,18 @@ class GameController {
     func startGame() {
         playTime = 60
         player.currentScore = 0
+        
+        for _ in 1...maxBubbles {
+            spawnOneBubble()
+        }
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.tick()
         }
+    }
+    
+    private func spawnOneBubble() {
+        self.scene?.generatingBubbles()
+        self.bubblesSpawned += 1
     }
 
     private func tick() {
@@ -40,12 +54,20 @@ class GameController {
     func handleTap(points: Int, color: UIColor) {
         let finalPoints = PointsMultiplierManager().calculatePoints(for: color, basePoints: points)
         player.currentScore += finalPoints
+        playerScore?.wrappedValue = player.currentScore
         scoreManager.updateHighScore(with: player.currentScore, playerName: "Player")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            let bubbleCount = self?.scene?.children.filter { $0.name == "Bubbles" }.count ?? 0
+            if bubbleCount == 0 {
+                self?.endGame()
+            }
+        }
     }
 
     func endGame() {
         timer?.invalidate()
+        timer = nil
         scene?.isPaused = true
-        // Trigger UI overlays via the View
+        scene?.onReturnHome?()
     }
 }
