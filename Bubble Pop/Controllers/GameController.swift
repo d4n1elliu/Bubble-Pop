@@ -18,6 +18,8 @@ class GameController {
     
     var playerScore: Binding<Int>?
     
+    private let pointsMultiplier = PointsMultiplierManager()
+    
     private var bubblesSpawned: Int = 0
     private let maxBubbles: Int = 15
 
@@ -27,8 +29,17 @@ class GameController {
     }
 
     func startGame() {
+        
+        timer?.invalidate()
+        timer = nil
+        
         playTime = 60
         player.currentScore = 0
+        bubblesSpawned = 0
+        
+        pointsMultiplier.resetMultiplier()
+        
+        scene?.isPaused = false
         
         for _ in 1...maxBubbles {
             spawnOneBubble()
@@ -52,9 +63,11 @@ class GameController {
     }
 
     func handleTap(points: Int, color: UIColor) {
-        let finalPoints = PointsMultiplierManager().calculatePoints(for: color, basePoints: points)
+        let finalPoints = pointsMultiplier.calculatePoints(for: color, basePoints: points)
+        
         player.currentScore += finalPoints
         playerScore?.wrappedValue = player.currentScore
+        
         scoreManager.updateHighScore(with: player.currentScore, playerName: "Player")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             let bubbleCount = self?.scene?.children.filter { $0.name == "Bubbles" }.count ?? 0
@@ -67,7 +80,10 @@ class GameController {
     func endGame() {
         timer?.invalidate()
         timer = nil
-        scene?.isPaused = true
-        scene?.onReturnHome?()
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.scene?.isPaused = true
+            self?.scene?.onReturnHome?()
+        }
     }
 }

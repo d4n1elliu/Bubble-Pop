@@ -44,6 +44,11 @@ struct GameView: View {
                 ZStack {
                     SpriteView(scene: gameScene, options: [.allowsTransparency])
                         .onAppear {
+                            showReturnButton = false
+                            
+                            gameScene.removeAllChildren()
+                            gameScene.isPaused = false
+                            
                             gameScene.size = geo.size
                             setupGame()
                         }
@@ -55,7 +60,9 @@ struct GameView: View {
         .overlay {
             if showReturnButton { endGameOverlay }
         }
-        .sheet(isPresented: $showScoreBoard) { ScoreBoardView() }
+        .sheet(isPresented: $showScoreBoard) {
+            ScoreBoardView()
+        }
     }
     
     private func statColumn(title: String, value: String, color: Color = .primary) -> some View {
@@ -83,12 +90,14 @@ struct GameView: View {
         
         gameScene.playerName = playerName
         gameScene.onReturnHome = {
-            withAnimation(.spring()) {
-                showReturnButton = true
-                scoreManager.updateHighScore(with: playerData.currentScore, playerName: playerName)
+            
+            DispatchQueue.main.async {
+                withAnimation(.spring()) {
+                    showReturnButton = true
+                    scoreManager.updateHighScore(with: playerData.currentScore, playerName: playerName)
+                }
             }
         }
-        
         gc.startGame()
     }
     

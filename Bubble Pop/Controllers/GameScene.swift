@@ -78,6 +78,11 @@ class GameScene: SKScene {
     
     func restartGameSession() {
         self.removeAllChildren()
+        self.removeAllActions()
+        
+        self.isPaused = false
+        self.physicsWorld.speed = 1.0
+
         setupPhysics()
         controller?.startGame()
     }
