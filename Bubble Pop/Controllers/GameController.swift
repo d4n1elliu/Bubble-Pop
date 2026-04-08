@@ -64,15 +64,23 @@ class GameController {
 
     func handleTap(points: Int, color: UIColor) {
         let finalPoints = pointsMultiplier.calculatePoints(for: color, basePoints: points)
-        
         player.currentScore += finalPoints
         playerScore?.wrappedValue = player.currentScore
         
-        scoreManager.updateHighScore(with: player.currentScore, playerName: "Player")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            let bubbleCount = self?.scene?.children.filter { $0.name == "Bubbles" }.count ?? 0
-            if bubbleCount == 0 {
-                self?.endGame()
+        scoreManager.updateHighScore(with: player.currentScore, playerName: player.name)
+        
+        // Increased delay and more robust check
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+            guard let self = self else { return }
+            
+            // Count bubbles specifically by name
+            let bubbles = self.scene?.children.filter { $0.name == "Bubbles" }
+            let count = bubbles?.count ?? 0
+            
+            // If this was the last bubble, end the game
+            if count == 0 {
+                print("DEBUG: All bubbles cleared. Ending game.")
+                self.endGame()
             }
         }
     }
