@@ -51,7 +51,7 @@ struct ContentView: View {
                         .shadow(color: playerName.isEmpty ? .clear : .blue.opacity(0.3), radius: 10, x: 0, y: 5)
                 }
                 .padding(.horizontal, 70)
-                .disabled(playerName.isEmpty)
+                //.disabled(playerName.isEmpty)
                 
                 Spacer()
             }
