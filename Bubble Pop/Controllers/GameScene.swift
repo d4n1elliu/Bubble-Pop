@@ -17,9 +17,22 @@ class GameScene: SKScene {
     /// Callback triggers when the game ends to handle UI navigation.
     var onReturnHome: (() -> Void)?
     
-    private enum Constants {
+    private enum PhysicsConstants {
+        /// Bubble Constants
         static let bubbleRadius: CGFloat = 30
         static let bubbleName = "Bubbles"
+        
+        /// Physics Constants
+        static let dxThreshold: CGFloat = 0
+        static let dyThreshold: CGFloat = 0
+        static let perfectBounciness: CGFloat = 1.0
+        static let zeroFriction: CGFloat = 0.0
+        static let zeroDamping: CGFloat = 0.0
+        static let physicsWorldSpeed: CGFloat = 1.0
+        
+        /// Motion Constants
+        static let maxImpulseRange: CGFloat = 15.0
+        static let minImpulseRange: CGFloat = -15.0
     }
     
     override func didMove(to view: SKView) {
@@ -37,13 +50,13 @@ class GameScene: SKScene {
         let borderBody = SKPhysicsBody(edgeLoopFrom: self.frame)
         self.physicsBody = borderBody
         /// Zero gravity environment for floating bubble movement
-        self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        self.physicsWorld.gravity = CGVector(dx: PhysicsConstants.dxThreshold, dy: PhysicsConstants.dyThreshold)
     }
     
     /// Creating and injects a new bubble node into the physics world with random properties.
     func generatingBubbles() {
-        let bubble = SKShapeNode(circleOfRadius: Constants.bubbleRadius)
-        bubble.name = Constants.bubbleName
+        let bubble = SKShapeNode(circleOfRadius: PhysicsConstants.bubbleRadius)
+        bubble.name = PhysicsConstants.bubbleName
         
         /// Retrieving randomised color and point values based on game probability
         let type = BubbleProbability.generateBubbleColor()
@@ -53,22 +66,22 @@ class GameScene: SKScene {
         
         /// Randomise initial position to ensure the bubble stays within boundaries
         bubble.position = CGPoint(
-            x: CGFloat.random(in: Constants.bubbleRadius...frame.width - Constants.bubbleRadius),
-            y: CGFloat.random(in: Constants.bubbleRadius...frame.height - Constants.bubbleRadius)
+            x: CGFloat.random(in: PhysicsConstants.bubbleRadius...frame.width - PhysicsConstants.bubbleRadius),
+            y: CGFloat.random(in: PhysicsConstants.bubbleRadius...frame.height - PhysicsConstants.bubbleRadius)
         )
         
         /// Configure physics for frictionless and bouncy movement
-        bubble.physicsBody = SKPhysicsBody(circleOfRadius: Constants.bubbleRadius)
-        bubble.physicsBody?.restitution = 1.0
-        bubble.physicsBody?.friction = 0
-        bubble.physicsBody?.linearDamping = 0
+        bubble.physicsBody = SKPhysicsBody(circleOfRadius: PhysicsConstants.bubbleRadius)
+        bubble.physicsBody?.restitution = PhysicsConstants.perfectBounciness
+        bubble.physicsBody?.friction = PhysicsConstants.zeroFriction
+        bubble.physicsBody?.linearDamping = PhysicsConstants.zeroDamping
         bubble.physicsBody?.allowsRotation = false
         
         addChild(bubble)
         
         /// Apply an initial velocity to set the bubble in motion
-        let randomX = CGFloat.random(in: -15...15)
-        let randomY = CGFloat.random(in: -15...15)
+        let randomX = CGFloat.random(in: PhysicsConstants.minImpulseRange...PhysicsConstants.maxImpulseRange)
+        let randomY = CGFloat.random(in: PhysicsConstants.minImpulseRange...PhysicsConstants.maxImpulseRange)
         bubble.physicsBody?.applyImpulse(CGVector(dx: randomX, dy: randomY))
     }
     
@@ -80,7 +93,7 @@ class GameScene: SKScene {
         let location = touch.location(in: self)
         let tappedNodes = nodes(at: location)
         
-        for node in tappedNodes where node.name == Constants.bubbleName {
+        for node in tappedNodes where node.name == PhysicsConstants.bubbleName {
             if let pts = node.userData?["points"] as? Int,
                let clr = node.userData?["color"] as? UIColor {
                 /// Notify controller of score change before removing the node
@@ -96,7 +109,7 @@ class GameScene: SKScene {
         self.removeAllActions()
         
         self.isPaused = false
-        self.physicsWorld.speed = 1.0
+        self.physicsWorld.speed = PhysicsConstants.physicsWorldSpeed
 
         setupPhysics()
         controller?.startGame()
