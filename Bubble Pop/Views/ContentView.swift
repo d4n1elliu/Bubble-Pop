@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-private enum ContentUI {
+enum ContentUI {
     /// Padding Spacing Constants
     enum Spacing {
         static let rootVStackSpacing: CGFloat = 35
