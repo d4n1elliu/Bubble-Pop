@@ -11,7 +11,21 @@ import SpriteKit
 /// Managing core logic, timer and score state for the BubblePop session
 @Observable
 class GameController {
-    var playTime: Int = 60
+    
+    private enum GameControllerConfig {
+        static let initialPlayTime: Int = 60
+        static let maxBubbles: Int = 15
+        static let timerInterval: TimeInterval = 1.0
+        static let initialScore: Int = 0
+        static let initialSpawnCount: Int = 0
+        
+        /// Delay for SpriteKit node removal before performing logic checks
+        static let physicsCleanupDelay: Double = 0.15
+        
+        /// Target node name for filtering game entities
+        static let bubbleNodeName = "Bubbles"
+    }
+    var playTime: Int = GameControllerConfig.initialPlayTime
     var timer: Timer?
     var player: PlayerData
     var scoreManager: ScoreManager
@@ -21,8 +35,8 @@ class GameController {
     
     private let pointsMultiplier = PointsMultiplierManager()
     
-    private var bubblesSpawned: Int = 0
-    private let maxBubbles: Int = 15
+    private var bubblesSpawned: Int = GameControllerConfig.initialSpawnCount
+    private let maxBubbles: Int = GameControllerConfig.maxBubbles
 
     init(player: PlayerData, scoreManager: ScoreManager) {
         self.player = player
@@ -35,19 +49,18 @@ class GameController {
         timer?.invalidate()
         timer = nil
         
-        playTime = 60
-        player.currentScore = 0
-        bubblesSpawned = 0
+        playTime = GameControllerConfig.initialPlayTime
+        player.currentScore = GameControllerConfig.initialScore
+        bubblesSpawned = GameControllerConfig.initialSpawnCount
         
         pointsMultiplier.resetMultiplier()
-        
         scene?.isPaused = false
         
         /// For populating game screen with bubbles
         for _ in 1...maxBubbles {
             spawnOneBubble()
         }
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) {
+        timer = Timer.scheduledTimer(withTimeInterval: GameControllerConfig.timerInterval, repeats: true) {
             [weak self] _ in
             self?.tick()
         }
@@ -76,14 +89,14 @@ class GameController {
         scoreManager.updateHighScore(with: player.currentScore, playerName: player.name)
         
         /// Small delay allows the SpriteKit physics engine to remove nodes before we check the count
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + GameControllerConfig.physicsCleanupDelay) {
             [weak self] in
             guard let self = self else {
                 return
             }
             
             let bubbles = self.scene?.children.filter {
-                $0.name == "Bubbles"
+                $0.name == GameControllerConfig.bubbleNodeName
             }
             let count = bubbles?.count ?? 0
             if count == 0 {
