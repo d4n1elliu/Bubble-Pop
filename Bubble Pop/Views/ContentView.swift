@@ -8,35 +8,68 @@
 import SwiftUI
 import SwiftData
 
+enum ContentUI {
+    /// Padding Spacing Constants
+    enum Spacing {
+        static let rootVStackSpacing: CGFloat = 35
+        static let labelToField: CGFloat = 12
+        static let horizontalPadding: CGFloat = 70
+        static let standardPadding: CGFloat = 40
+    }
+    /// Font Size Constants
+    enum FontSize {
+        static let titleSize: CGFloat = 48
+        static let labelSize: CGFloat = 12
+        static let inputNameSize: CGFloat = 18
+        static let lettersTracking: CGFloat = 2
+    }
+    /// Button Layout Constants
+    enum Layout {
+        static let inputFieldHeight: CGFloat = 55
+        static let inputField: CGFloat = 15
+        static let cornerRadius: CGFloat = 25
+        static let buttonVerticalPadding: CGFloat = 18
+        
+        /// Shadow Contants
+        static let shadowRadius: CGFloat = 10
+        static let shadowXOffset: CGFloat = 0
+        static let shadowYOffset: CGFloat = 5
+        static let shadowOpacity: Double = 0.3
+        
+        /// Background Constants
+        static let fieldOpacity: Double = 0.05
+    }
+}
+
 struct ContentView: View {
     @State private var playerName: String = ""
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 35) {
+            VStack(spacing: ContentUI.Spacing.rootVStackSpacing) {
                 Spacer()
                 
                 /// Game title 
                 Text("Bubble Pop")
-                    .font(.system(size: 48, weight: .heavy, design: .rounded))
+                    .font(.system(size: ContentUI.FontSize.titleSize, weight: .heavy, design: .rounded))
                     .foregroundColor(.primary)
                 
                 /// Enter player name inputs
-                VStack(spacing: 12) {
+                VStack(spacing: ContentUI.Spacing.labelToField) {
                     Text("PLAYER NAME")
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .font(.system(size: ContentUI.FontSize.labelSize, weight: .bold, design: .rounded))
                         .foregroundColor(.secondary)
-                        .tracking(2)
+                        .tracking(ContentUI.FontSize.lettersTracking)
                     
                     TextField("Enter your name", text: $playerName)
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: ContentUI.FontSize.inputNameSize, weight: .medium, design: .rounded))
                         .multilineTextAlignment(.center)
                         .padding()
-                        .frame(height: 55)
-                        .background(Color.black.opacity(0.05), in: RoundedRectangle(cornerRadius: 15))
+                        .frame(height: ContentUI.Layout.inputFieldHeight)
+                        .background(Color.black.opacity(ContentUI.Layout.fieldOpacity), in: RoundedRectangle(cornerRadius: ContentUI.Layout.inputField))
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled(true)
-                        .padding(.horizontal, 70)
+                        .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
                 }
                 
                 /// Start game button
@@ -44,20 +77,20 @@ struct ContentView: View {
                     Text("Start Game")
                         .font(.system(.headline, design: .rounded).bold())
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 18)
+                        .padding(.vertical, ContentUI.Layout.buttonVerticalPadding)
                         .background(playerName.isEmpty ? Color.gray : Color.blue)
                         .foregroundColor(.white)
                         .clipShape(Capsule())
-                        .shadow(color: playerName.isEmpty ? .clear : .blue.opacity(0.3), radius: 10, x: 0, y: 5)
+                        .shadow(color: playerName.isEmpty ? .clear : .blue.opacity(ContentUI.Layout.shadowOpacity), radius: ContentUI.Layout.shadowRadius, x: ContentUI.Layout.shadowXOffset, y: ContentUI.Layout.shadowYOffset)
                 }
-                .padding(.horizontal, 70)
+                .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
                 .disabled(playerName.isEmpty)
                 
                 Spacer()
             }
-            .padding(40)
+            .padding(ContentUI.Spacing.standardPadding)
             
-            /// Navigation modifiers belong INSIDE the stack on the main view
+            /// Navigation modifiers belong inside the stack on the main view
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
         }
