@@ -8,22 +8,21 @@
 import Foundation
 import Observation
 
-/// A consistent manager responsible for tracking and saving the user's highest score
-/// This class uses @Observable macro to ensure SwiftUI can reactively view and update whenever a new highscore is achieved in the game
+/// Managing score persistency and using @Observation to automatically update the UI when a new high score is recorded.
 @Observable
 class ScoreManager {
+
     private let leaderboard = LeaderboardManager()
-    
-    /// Current highScore
+    /// Allow leaderboard variable to store the highest value.
     var highScore: Int {
         leaderboard.highestScore
     }
-    /// Comparing the current high score with any new highScore that saved if it is scored higher
+    /// Take results of the game when it is finished and put the scores onto the leaderboards.
     func updateHighScore(with currentScore: Int, playerName: String) {
         /// Passing the score to leaderboard to save it permanently
         leaderboard.addScore(name: playerName, value: currentScore)
     }
-    
+    /// Fetching latest score from helper class ScoreManager and trigger an UI refresh when scores list is updated.
     var allScores: [GameScore] {
         leaderboard.scores
     }
