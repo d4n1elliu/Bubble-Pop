@@ -18,8 +18,8 @@ struct BubbleProbability {
         static let black = 10
     }
     
-    /// Bubbles probablity percentage
-    private enum ProbablityPercentage {
+    /// Bubbles probability percentage
+    private enum ProbabilityPercentage {
         static let red = 40
         static let pink = 30
         static let green = 15
@@ -30,38 +30,38 @@ struct BubbleProbability {
     /// Bubble properties
     let colour: UIColor
     let points: Int
-    let probablityForAppearance: Int
+    let probabilityForAppearance: Int
     
     /// Static data type for bubble properties
     static let allTypes: [BubbleProbability] = [
         BubbleProbability(colour: .red,
                           points: Points.red,
-                          probablityForAppearance: ProbablityPercentage.red),
+                          probabilityForAppearance: ProbabilityPercentage.red),
         BubbleProbability(colour: .systemPink,
                           points: Points.pink,
-                          probablityForAppearance: ProbablityPercentage.pink),
+                          probabilityForAppearance: ProbabilityPercentage.pink),
         BubbleProbability(colour: .green,
                           points: Points.green,
-                          probablityForAppearance: ProbablityPercentage.green),
+                          probabilityForAppearance: ProbabilityPercentage.green),
         BubbleProbability(colour: .systemBlue,
                           points: Points.blue,
-                          probablityForAppearance: ProbablityPercentage.blue),
+                          probabilityForAppearance: ProbabilityPercentage.blue),
         BubbleProbability(colour: .black,
                           points: Points.black,
-                          probablityForAppearance: ProbablityPercentage.black)
+                          probabilityForAppearance: ProbabilityPercentage.black)
     ]
     
     static func generateBubbleColor() -> BubbleProbability {
-        /// Calculate the total probablity up to 100%
-        let probablityCheck = allTypes.reduce(0) { $0 + $1.probablityForAppearance }
+        /// Calculate the total probability up to 100%
+        let probabilityCheck = allTypes.reduce(0) { $0 + $1.probabilityForAppearance }
         
         /// Roll the dice
-        let randomNumber = Int.random(in: 1...probablityCheck)
+        let randomNumber = Int.random(in: 1...probabilityCheck)
         
         /// Find which "bracket" the random number falls into
         var cumulativeWeight = 0
         for bubbleType in allTypes {
-            cumulativeWeight += bubbleType.probablityForAppearance
+            cumulativeWeight += bubbleType.probabilityForAppearance
             if randomNumber <= cumulativeWeight {
                 return bubbleType
             }
