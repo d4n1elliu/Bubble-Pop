@@ -9,7 +9,7 @@ import UIKit
 
 struct BubbleProbability {
     
-    /// Points for different bubble colour
+    /*/// Points for different bubble colour
     private enum Points {
         static let red = 1
         static let pink = 2
@@ -25,38 +25,28 @@ struct BubbleProbability {
         static let green = 15
         static let blue = 10
         static let black = 5
-    }
+    }*/
     
     /// Bubble properties
     let colour: UIColor
     let points: Int
     let probabilityForAppearance: Int
+        
     
     /// Static data type for bubble properties
-    static let allTypes: [BubbleProbability] = [
-        BubbleProbability(colour: .red,
-                          points: Points.red,
-                          probabilityForAppearance: ProbabilityPercentage.red),
-        BubbleProbability(colour: .systemPink,
-                          points: Points.pink,
-                          probabilityForAppearance: ProbabilityPercentage.pink),
-        BubbleProbability(colour: .green,
-                          points: Points.green,
-                          probabilityForAppearance: ProbabilityPercentage.green),
-        BubbleProbability(colour: .systemBlue,
-                          points: Points.blue,
-                          probabilityForAppearance: ProbabilityPercentage.blue),
-        BubbleProbability(colour: .black,
-                          points: Points.black,
-                          probabilityForAppearance: ProbabilityPercentage.black)
-    ]
+    static let allTypes: [BubbleProbability] = BubbleConfig.allCases.map { config in
+        BubbleProbability(
+            colour: config.color,
+            points: config.points,
+            probabilityForAppearance: config.probability
+        )
+    }
     
     static func generateBubbleColor() -> BubbleProbability {
         /// Calculate the total probability up to 100%
         let probabilityCheck = allTypes.reduce(0) {
             $0 + $1.probabilityForAppearance
         }
-        
         /// Roll the dice
         let randomNumber = Int.random(in: 1...probabilityCheck)
         
