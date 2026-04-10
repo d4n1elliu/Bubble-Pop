@@ -44,3 +44,5 @@ Players need to pop spawned bubbles under a set 60 seconds time limit and there 
 
 A final results overlay will displays player's overall performance and include a direct path to return back to main menu for a new game run.
 
+## AI Usage
+This README file was created by Google Gemini. Swift code was written by me and reviewed/edited by Google Gemini. 
