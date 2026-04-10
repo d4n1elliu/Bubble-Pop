@@ -53,7 +53,9 @@ struct BubbleProbability {
     
     static func generateBubbleColor() -> BubbleProbability {
         /// Calculate the total probability up to 100%
-        let probabilityCheck = allTypes.reduce(0) { $0 + $1.probabilityForAppearance }
+        let probabilityCheck = allTypes.reduce(0) {
+            $0 + $1.probabilityForAppearance
+        }
         
         /// Roll the dice
         let randomNumber = Int.random(in: 1...probabilityCheck)
