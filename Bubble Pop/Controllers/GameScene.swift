@@ -17,6 +17,7 @@ class GameScene: SKScene {
     /// Callback triggers when the game ends to handle UI navigation.
     var onReturnHome: (() -> Void)?
     
+
     override func didMove(to view: SKView) {
         setupPhysics()
     }
@@ -48,7 +49,7 @@ class GameScene: SKScene {
             if let pts = node.userData?["points"] as? Int,
                let clr = node.userData?["color"] as? UIColor {
                 /// Notify controller of score change before removing the node
-                controller?.handleTap(points: pts, color: clr)
+                controller?.handleTap(at: location, points: pts, color: clr)
                 node.removeFromParent()
             }
         }

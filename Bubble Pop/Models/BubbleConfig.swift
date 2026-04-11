@@ -73,10 +73,12 @@ enum BubbleConfig: CaseIterable {
 
 struct BubbleCreation {
     /// Spawns a single bubble with randomized properties and physics into the provided scene.
-    static func spawnBubble(in scene: GameScene) {
+    static func spawnBubble(in scene: GameScene, avoiding cursorPosition: CGPoint? = nil) {
         /// Determining Bubble Type (Color/Points) based on probability
         let allTypes = BubbleConfig.allCases
-        let totalWeight = allTypes.reduce(0) { $0 + $1.probability }
+        let totalWeight = allTypes.reduce(0) {
+            $0 + $1.probability
+        }
         let randomNumber = Int.random(in: 1...totalWeight)
         
         var selectedType: BubbleConfig = .red
@@ -90,6 +92,31 @@ struct BubbleCreation {
             }
         }
         
+        var xPos: CGFloat = 0
+        var yPos: CGFloat = 0
+        var isValidPosition = false
+        var attempts = 0
+
+        // We use 'while !isValidPosition' so the loop runs UNTIL we find a good spot
+        while !isValidPosition && attempts < 50 {
+            attempts += 1
+            
+            // FIXED: Ensure xPos uses width and yPos uses height
+            xPos = CGFloat.random(in: PhysicsConstants.bubbleRadius...(scene.size.width - PhysicsConstants.bubbleRadius))
+            yPos = CGFloat.random(in: PhysicsConstants.bubbleRadius...(scene.size.height - PhysicsConstants.bubbleRadius))
+            
+            if let cursor = cursorPosition {
+                let distance = sqrt(pow(xPos - cursor.x, 2) + pow(yPos - cursor.y, 2))
+                // Only accept positions at least 100 points away from cursor
+                if distance > 100 {
+                    isValidPosition = true
+                }
+            } else {
+                // If no cursor (at game start), any position is immediately valid
+                isValidPosition = true
+            }
+        }
+        
         /// Creating visual bubble body
         let bubble = SKShapeNode(circleOfRadius: PhysicsConstants.bubbleRadius)
         bubble.name = PhysicsConstants.bubbleName
@@ -97,10 +124,7 @@ struct BubbleCreation {
         bubble.strokeColor = .white
         bubble.lineWidth = 2
         bubble.userData = ["points": selectedType.points, "color": selectedType.color]
-        
         /// Randomize Position (Ensuring it stays within screen bounds)
-        let xPos = CGFloat.random(in: PhysicsConstants.bubbleRadius...(scene.size.width - PhysicsConstants.bubbleRadius))
-        let yPos = CGFloat.random(in: PhysicsConstants.bubbleRadius...(scene.size.height - PhysicsConstants.bubbleRadius))
         bubble.position = CGPoint(x: xPos, y: yPos)
         
         /// Configure Physics Body
@@ -116,6 +140,7 @@ struct BubbleCreation {
 
         let randomX = CGFloat.random(in: PhysicsConstants.minImpulseRange...PhysicsConstants.maxImpulseRange)
         let randomY = CGFloat.random(in: PhysicsConstants.minImpulseRange...PhysicsConstants.maxImpulseRange)
+        
         body.applyImpulse(CGVector(dx: randomX, dy: randomY))
     }
 }

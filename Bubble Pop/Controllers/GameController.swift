@@ -16,6 +16,7 @@ class GameController {
     var timer: Timer?
     var player: PlayerData
     var scoreManager: ScoreManager
+    var lastTapLocation: CGPoint?
     weak var scene: GameScene?
     
     var playerScore: Binding<Int>?
@@ -35,20 +36,29 @@ class GameController {
         /// Confirming all existing timers are cleaned up before starting a new game session
         timer?.invalidate()
         timer = nil
+        lastTapLocation = nil
+        
+        scene?.removeAllChildren()
         
         playTime = GameControllerConfig.initialPlayTime
         player.currentScore = GameControllerConfig.initialScore
-        bubblesSpawned = GameControllerConfig.initialSpawnCount
+        
+        self.bubblesSpawned = GameControllerConfig.maxBubbles
         
         pointsMultiplier.resetMultiplier()
         scene?.isPaused = false
         
-        /// For populating game screen with bubbles
-        for _ in 1...GameControllerConfig.maxBubbles {
-            if let gameScene = self.scene {
-                BubbleCreation.spawnBubble(in: gameScene)
+        /// Use a small delay to ensure the scene frame is correctly set before spawning
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            [weak self] in
+            guard let self = self, let gameScene = self.scene else {
+                return
+            }
+            for _ in 0..<self.bubblesSpawned {
+                BubbleCreation.spawnBubble(in: gameScene, avoiding: nil)
             }
         }
+       
         timer = Timer.scheduledTimer(withTimeInterval: GameControllerConfig.timerInterval, repeats: true) {
             [weak self] _ in
             self?.tick()
@@ -65,12 +75,13 @@ class GameController {
                 $0.name == GameControllerConfig.bubbleNodeName
             }.count ?? 0
             if currentBubbles < GameControllerConfig.maxBubbles {
-                /// Randomising spawn counts 
-                let spawnCount = Int.random(in: 1...3)
+                let needed = GameControllerConfig.maxBubbles - currentBubbles
+                /// Spawn up to 5 at a time to refill the screen faster
+                let spawnLimit = min(needed, 5)
                 
-                for _ in 0..<spawnCount {
+                for _ in 0..<spawnLimit {
                     if let gameScene = self.scene {
-                        BubbleCreation.spawnBubble(in: gameScene)
+                        BubbleCreation.spawnBubble(in: gameScene, avoiding: lastTapLocation)
                     }
                 }
             }
@@ -80,28 +91,14 @@ class GameController {
     }
     
     /// Processes a bubble tap, updates the score with multipliers and checks for win conditions.
-    func handleTap(points: Int, color: UIColor) {
+    func handleTap(at location: CGPoint, points: Int, color: UIColor) {
+        self.lastTapLocation = location
+        
         let finalPoints = pointsMultiplier.calculatePoints(for: color, basePoints: points)
         player.currentScore += finalPoints
         playerScore?.wrappedValue = player.currentScore
         
         scoreManager.updateHighScore(with: player.currentScore, playerName: player.name)
-        
-        /// Small delay allows the SpriteKit physics engine to remove nodes before we check the count
-        DispatchQueue.main.asyncAfter(deadline: .now() + GameControllerConfig.physicsCleanupDelay) {
-            [weak self] in
-            guard let self = self else {
-                return
-            }
-            
-            let bubbles = self.scene?.children.filter {
-                $0.name == GameControllerConfig.bubbleNodeName
-            }
-            let count = bubbles?.count ?? 0
-            if count == 0 {
-                self.endGame()
-            }
-        }
     }
     
     /// Stops the timer and triggers the navigation back to the home/result screen.
