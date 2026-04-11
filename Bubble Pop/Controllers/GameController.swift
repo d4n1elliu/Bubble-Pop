@@ -58,7 +58,22 @@ class GameController {
     /// Handle 1 second interval update for game clock.
     private func tick() {
         if playTime > 0 {
+            /// Decreasing play time interval as long as play time is more than 0 seconds
             playTime -= 1
+            
+            let currentBubbles = scene?.children.filter {
+                $0.name == GameControllerConfig.bubbleNodeName
+            }.count ?? 0
+            if currentBubbles < GameControllerConfig.maxBubbles {
+                /// Randomising spawn counts 
+                let spawnCount = Int.random(in: 1...3)
+                
+                for _ in 0..<spawnCount {
+                    if let gameScene = self.scene {
+                        BubbleCreation.spawnBubble(in: gameScene)
+                    }
+                }
+            }
         } else {
             endGame()
         }
