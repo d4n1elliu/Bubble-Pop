@@ -12,19 +12,6 @@ import SpriteKit
 @Observable
 class GameController {
     
-    private enum GameControllerConfig {
-        static let initialPlayTime: Int = 60
-        static let maxBubbles: Int = 15
-        static let timerInterval: TimeInterval = 1.0
-        static let initialScore: Int = 0
-        static let initialSpawnCount: Int = 0
-        
-        /// Delay for SpriteKit node removal before performing logic checks
-        static let physicsCleanupDelay: Double = 0.15
-        
-        /// Target node name for filtering game entities
-        static let bubbleNodeName = "Bubbles"
-    }
     var playTime: Int = GameControllerConfig.initialPlayTime
     var timer: Timer?
     var player: PlayerData
@@ -33,10 +20,10 @@ class GameController {
     
     var playerScore: Binding<Int>?
     
-    private let pointsMultiplier = PointsMultiplierManager()
+    let pointsMultiplier = PointsMultiplierManager()
     
-    private var bubblesSpawned: Int = GameControllerConfig.initialSpawnCount
-    private let maxBubbles: Int = GameControllerConfig.maxBubbles
+    var bubblesSpawned: Int = GameControllerConfig.initialSpawnCount
+    let maxBubbles: Int = GameControllerConfig.maxBubbles
 
     init(player: PlayerData, scoreManager: ScoreManager) {
         self.player = player
@@ -57,18 +44,15 @@ class GameController {
         scene?.isPaused = false
         
         /// For populating game screen with bubbles
-        for _ in 1...maxBubbles {
-            spawnOneBubble()
+        for _ in 1...GameControllerConfig.maxBubbles {
+            if let gameScene = self.scene {
+                BubbleCreation.spawnBubble(in: gameScene)
+            }
         }
         timer = Timer.scheduledTimer(withTimeInterval: GameControllerConfig.timerInterval, repeats: true) {
             [weak self] _ in
             self?.tick()
         }
-    }
-    
-    private func spawnOneBubble() {
-        self.scene?.generatingBubbles()
-        self.bubblesSpawned += 1
     }
     
     /// Handle 1 second interval update for game clock.
@@ -110,10 +94,21 @@ class GameController {
         timer?.invalidate()
         timer = nil
         
-        DispatchQueue.main.async {
-            [weak self] in
-            self?.scene?.isPaused = true
-            self?.scene?.onReturnHome?()
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            /// Pause the physics world immediately
+            self.scene?.isPaused = true
+            
+            /// Final High Score check before the overlay appears
+            /// Using player.name from your PlayerData model
+            self.scoreManager.updateHighScore(
+                with: self.player.currentScore,
+                playerName: self.scene?.playerName ?? "Unknown"
+            )
+            
+            /// Triggers the overlay in GameView
+            self.scene?.onReturnHome?()
         }
     }
 }

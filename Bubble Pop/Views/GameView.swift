@@ -42,15 +42,15 @@ struct GameView: View {
             /// Game Layer
             GeometryReader { geo in
                 ZStack {
-                    SpriteView(scene: gameScene, options: [.allowsTransparency])
+                    SpriteView(scene: gameScene, options: [.allowsTransparency, .ignoresSiblingOrder])
                         .onAppear {
-                            showReturnButton = false
-                            
                             gameScene.removeAllChildren()
-                            gameScene.isPaused = false
                             
                             gameScene.size = geo.size
                             setupGame()
+                        }
+                        .onChange(of: geo.size) { _, newSize in
+                            gameScene.size = newSize
                         }
                 }
             }
@@ -83,6 +83,9 @@ struct GameView: View {
         gameScene.controller = gc
         gc.scene = gameScene
         
+        gameScene.isPaused = false
+        showReturnButton = false
+        
         gc.playerScore = Binding<Int>(
             get: { playerData.currentScore },
             set: { playerData.currentScore = $0 }
@@ -90,11 +93,10 @@ struct GameView: View {
         
         gameScene.playerName = playerName
         gameScene.onReturnHome = {
-            
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
-                    showReturnButton = true
-                    scoreManager.updateHighScore(with: playerData.currentScore, playerName: playerName)
+                    self.showReturnButton = true
+                    self.scoreManager.updateHighScore(with: self.playerData.currentScore, playerName: self.playerName)
                 }
             }
         }
