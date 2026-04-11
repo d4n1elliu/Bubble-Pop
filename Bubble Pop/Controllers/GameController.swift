@@ -18,6 +18,7 @@ class GameController {
     var scoreManager: ScoreManager
     var lastTapLocation: CGPoint?
     weak var scene: GameScene?
+    private var lastTapColor: UIColor?
     
     var playerScore: Binding<Int>?
     
@@ -25,18 +26,19 @@ class GameController {
     
     var bubblesSpawned: Int = GameControllerConfig.initialSpawnCount
     let maxBubbles: Int = GameControllerConfig.maxBubbles
-
+    
     init(player: PlayerData, scoreManager: ScoreManager) {
         self.player = player
         self.scoreManager = scoreManager
     }
-
+    
     /// Resets the game state and start countdown timer and initial bubble spawn
     func startGame() {
         /// Confirming all existing timers are cleaned up before starting a new game session
         timer?.invalidate()
         timer = nil
         lastTapLocation = nil
+        lastTapColor = nil
         
         scene?.removeAllChildren()
         
@@ -44,7 +46,6 @@ class GameController {
         player.currentScore = GameControllerConfig.initialScore
         
         self.bubblesSpawned = GameControllerConfig.maxBubbles
-        
         pointsMultiplier.resetMultiplier()
         scene?.isPaused = false
         
@@ -58,7 +59,7 @@ class GameController {
                 BubbleCreation.spawnBubble(in: gameScene, avoiding: nil)
             }
         }
-       
+        
         timer = Timer.scheduledTimer(withTimeInterval: GameControllerConfig.timerInterval, repeats: true) {
             [weak self] _ in
             self?.tick()
@@ -67,26 +68,36 @@ class GameController {
     
     /// Handle 1 second interval update for game clock.
     private func tick() {
-        if playTime > 0 {
-            /// Decreasing play time interval as long as play time is more than 0 seconds
-            playTime -= 1
+        guard playTime > 0 else {
+            endGame()
+            return
+        }
+        playTime -= 1
+        /// Decreasing play time interval as long as play time is more than 0 seconds
+        if let gameScene = self.scene {
+            let currentBubbles = gameScene.children.filter { $0.name == GameControllerConfig.bubbleNodeName }
             
-            let currentBubbles = scene?.children.filter {
-                $0.name == GameControllerConfig.bubbleNodeName
-            }.count ?? 0
-            if currentBubbles < GameControllerConfig.maxBubbles {
-                let needed = GameControllerConfig.maxBubbles - currentBubbles
-                /// Spawn up to 5 at a time to refill the screen faster
-                let spawnLimit = min(needed, 5)
+            if !currentBubbles.isEmpty {
+                // Randomly decide how many to remove (e.g., between 1 and 3)
+                let removalCount = Int.random(in: 1...min(currentBubbles.count, 3))
+                let bubblesToRemove = currentBubbles.shuffled().prefix(removalCount)
                 
-                for _ in 0..<spawnLimit {
-                    if let gameScene = self.scene {
-                        BubbleCreation.spawnBubble(in: gameScene, avoiding: lastTapLocation)
-                    }
+                for bubble in bubblesToRemove {
+                    bubble.removeFromParent()
                 }
             }
-        } else {
-            endGame()
+            
+            // 2. Refresh/Replace with a random number of new bubbles
+            // This ensures the count varies slightly every second as per requirement 9
+            let remainingCount = gameScene.children.filter { $0.name == GameControllerConfig.bubbleNodeName }.count
+            let maxToSpawn = GameControllerConfig.maxBubbles - remainingCount
+            
+            if maxToSpawn > 0 {
+                let spawnCount = Int.random(in: 1...maxToSpawn)
+                for _ in 0..<spawnCount {
+                    BubbleCreation.spawnBubble(in: gameScene, avoiding: lastTapLocation)
+                }
+            }
         }
     }
     
@@ -94,10 +105,14 @@ class GameController {
     func handleTap(at location: CGPoint, points: Int, color: UIColor) {
         self.lastTapLocation = location
         
-        let finalPoints = pointsMultiplier.calculatePoints(for: color, basePoints: points)
-        player.currentScore += finalPoints
-        playerScore?.wrappedValue = player.currentScore
+        var finalPoints = Double(points)
+        if let lastColor = lastTapColor, lastColor == color {
+            finalPoints = (finalPoints * 1.5).rounded()
+        }
         
+        lastTapColor = color
+        player.currentScore += Int(finalPoints)
+        playerScore?.wrappedValue = player.currentScore
         scoreManager.updateHighScore(with: player.currentScore, playerName: player.name)
     }
     

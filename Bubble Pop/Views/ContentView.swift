@@ -84,7 +84,7 @@ struct ContentView: View {
                         .shadow(color: playerName.isEmpty ? .clear : .blue.opacity(ContentUI.Layout.shadowOpacity), radius: ContentUI.Layout.shadowRadius, x: ContentUI.Layout.shadowXOffset, y: ContentUI.Layout.shadowYOffset)
                 }
                 .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
-                //.disabled(playerName.isEmpty)
+                .disabled(playerName.isEmpty)
                 
                 Spacer()
             }
