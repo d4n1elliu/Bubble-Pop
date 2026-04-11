@@ -54,6 +54,30 @@ class GameScene: SKScene {
             }
         }
     }
+    override func update(_ currentTime: TimeInterval) {
+        /// Ensure we have access to the controller and the game is active
+        guard let controller = controller, !self.isPaused else { return }
+    
+        /// This example increases speed as time drops below certain thresholds
+        let newSpeed: CGFloat
+        
+        if controller.playTime <= 10 {
+            newSpeed = 3.5 /// Final 10 seconds: Very fast
+        } else if controller.playTime <= 30 {
+            newSpeed = 2.5 /// Under 30 seconds: Faster
+        } else if controller.playTime <= 60 {
+            newSpeed = 1.5
+        }
+        else {
+            newSpeed = 1.0 /// Normal speed
+        }
+        
+        /// Apply the speed to the physics world
+        /// We use a small check to avoid re-setting it every single frame if it hasn't changed
+        if self.physicsWorld.speed != newSpeed {
+            self.physicsWorld.speed = newSpeed
+        }
+    }
     
     /// Resets the scene state and clears all active nodes for a new game session.
     func restartGameSession() {
