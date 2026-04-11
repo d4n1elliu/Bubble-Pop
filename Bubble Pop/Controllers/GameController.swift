@@ -13,6 +13,8 @@ import SpriteKit
 class GameController {
     
     var playTime: Int = GameControllerConfig.initialPlayTime
+    var gameTimeframe: Int = GameControllerConfig.initialPlayTime
+    
     var timer: Timer?
     var player: PlayerData
     var scoreManager: ScoreManager
@@ -25,7 +27,8 @@ class GameController {
     let pointsMultiplier = PointsMultiplierManager()
     
     var bubblesSpawned: Int = GameControllerConfig.initialSpawnCount
-    let maxBubbles: Int = GameControllerConfig.maxBubbles
+    var maxBubbles: Int = GameControllerConfig.maxBubbles
+    private var bubbleRefreshInterval: Int = 0
     
     init(player: PlayerData, scoreManager: ScoreManager) {
         self.player = player
@@ -37,12 +40,14 @@ class GameController {
         /// Confirming all existing timers are cleaned up before starting a new game session
         timer?.invalidate()
         timer = nil
+        
+        bubbleRefreshInterval = 0
         lastTapLocation = nil
         lastTapColor = nil
         
         scene?.removeAllChildren()
         
-        playTime = GameControllerConfig.initialPlayTime
+        playTime = gameTimeframe
         player.currentScore = GameControllerConfig.initialScore
         
         self.bubblesSpawned = GameControllerConfig.maxBubbles
@@ -73,31 +78,40 @@ class GameController {
             return
         }
         playTime -= 1
+        
+        bubbleRefreshInterval += 1
         /// Decreasing play time interval as long as play time is more than 0 seconds
-        if let gameScene = self.scene {
-            let currentBubbles = gameScene.children.filter { $0.name == GameControllerConfig.bubbleNodeName }
-            
-            if !currentBubbles.isEmpty {
-                // Randomly decide how many to remove (e.g., between 1 and 3)
-                let removalCount = Int.random(in: 1...min(currentBubbles.count, 3))
-                let bubblesToRemove = currentBubbles.shuffled().prefix(removalCount)
+        if bubbleRefreshInterval >= 2 {
+            if let gameScene = self.scene {
+                let currentBubbles = gameScene.children.filter {
+                    $0.name == GameControllerConfig.bubbleNodeName
+                }
                 
-                for bubble in bubblesToRemove {
-                    bubble.removeFromParent()
+                if !currentBubbles.isEmpty {
+                    // Randomly decide how many to remove (e.g., between 1 and 3)
+                    let removalCount = Int.random(in: 1...min(currentBubbles.count, 3))
+                    let bubblesToRemove = currentBubbles.shuffled().prefix(removalCount)
+                    
+                    for bubble in bubblesToRemove {
+                        bubble.removeFromParent()
+                    }
+                }
+                
+                /// Refresh/Replace with a random number of new bubbles
+                /// This ensures the count varies slightly every second as per requirement 9
+                let remainingCount = gameScene.children.filter {
+                    $0.name == GameControllerConfig.bubbleNodeName
+                }.count
+                let maxToSpawn = GameControllerConfig.maxBubbles - remainingCount
+                
+                if maxToSpawn > 0 {
+                    let spawnCount = Int.random(in: 1...maxToSpawn)
+                    for _ in 0..<spawnCount {
+                        BubbleCreation.spawnBubble(in: gameScene, avoiding: lastTapLocation)
+                    }
                 }
             }
-            
-            // 2. Refresh/Replace with a random number of new bubbles
-            // This ensures the count varies slightly every second as per requirement 9
-            let remainingCount = gameScene.children.filter { $0.name == GameControllerConfig.bubbleNodeName }.count
-            let maxToSpawn = GameControllerConfig.maxBubbles - remainingCount
-            
-            if maxToSpawn > 0 {
-                let spawnCount = Int.random(in: 1...maxToSpawn)
-                for _ in 0..<spawnCount {
-                    BubbleCreation.spawnBubble(in: gameScene, avoiding: lastTapLocation)
-                }
-            }
+            bubbleRefreshInterval = 0
         }
     }
     

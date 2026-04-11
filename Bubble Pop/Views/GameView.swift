@@ -18,6 +18,9 @@ struct GameView: View {
     @State private var showScoreBoard = false
     @State private var controller: GameController?
     
+    @AppStorage("gameTimeframe") private var timeFrame = 60
+    @AppStorage("maxBubbles") private var maximumBubbles = 15
+    
     @State private var gameScene: GameScene = {
         let scene = GameScene()
         scene.scaleMode = .resizeFill
@@ -44,9 +47,8 @@ struct GameView: View {
                 ZStack {
                     SpriteView(scene: gameScene, options: [.allowsTransparency, .ignoresSiblingOrder])
                         .onAppear {
-                            gameScene.removeAllChildren()
-                            
                             gameScene.size = geo.size
+                            gameScene.removeAllChildren()
                             setupGame()
                         }
                         .onChange(of: geo.size) { _, newSize in
@@ -78,7 +80,9 @@ struct GameView: View {
             controller = GameController(player: playerData, scoreManager: scoreManager)
         }
         
-        guard let gc = controller else { return }
+        guard let gc = controller else {
+            return
+        }
         
         gameScene.controller = gc
         gc.scene = gameScene
@@ -100,6 +104,8 @@ struct GameView: View {
                 }
             }
         }
+        gc.gameTimeframe = timeFrame
+        gc.maxBubbles = maximumBubbles
         gc.startGame()
     }
     

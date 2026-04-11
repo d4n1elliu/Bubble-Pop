@@ -97,22 +97,22 @@ struct BubbleCreation {
         var isValidPosition = false
         var attempts = 0
 
-        // We use 'while !isValidPosition' so the loop runs UNTIL we find a good spot
+        /// Using while loop for  !isValidPosition so the loop runs until we find a good spot
         while !isValidPosition && attempts < 50 {
             attempts += 1
             
-            // FIXED: Ensure xPos uses width and yPos uses height
+            /// Ensures xPos uses width and yPos uses height
             xPos = CGFloat.random(in: PhysicsConstants.bubbleRadius...(scene.size.width - PhysicsConstants.bubbleRadius))
             yPos = CGFloat.random(in: PhysicsConstants.bubbleRadius...(scene.size.height - PhysicsConstants.bubbleRadius))
             
             if let cursor = cursorPosition {
                 let distance = sqrt(pow(xPos - cursor.x, 2) + pow(yPos - cursor.y, 2))
-                // Only accept positions at least 100 points away from cursor
+                /// Only accept positions at least 100 points away from cursor
                 if distance > 100 {
                     isValidPosition = true
                 }
             } else {
-                // If no cursor (at game start), any position is immediately valid
+                /// If no cursor (at game start), any position is immediately valid
                 isValidPosition = true
             }
         }
