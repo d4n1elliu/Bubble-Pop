@@ -61,7 +61,7 @@ class LeaderboardManager {
             /// Generate encoded data to UserDefaults using our unique configuration key
             UserDefaults.standard.set(encoded, forKey: Config.storageKey)
         } catch {
-            // Display an error message if the encoding process fails
+            /// Display an error message if the encoding process fails
             print("Failed to encode leaderboard: \(error.localizedDescription)")
         }
     }

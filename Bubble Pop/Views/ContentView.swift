@@ -90,7 +90,7 @@ struct ContentView: View {
                         .shadow(color: playerName.isEmpty ? .clear : .blue.opacity(ContentUI.Layout.shadowOpacity), radius: ContentUI.Layout.shadowRadius, x: ContentUI.Layout.shadowXOffset, y: ContentUI.Layout.shadowYOffset)
                 }
                 .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
-                //.disabled(playerName.isEmpty)
+                .disabled(playerName.isEmpty)
                 
                 Button(action: { showSettings = true }) {
                     HStack(spacing: ContentUI.Spacing.settingsIconSpacing) {
@@ -160,7 +160,7 @@ struct ContentView: View {
                                     .foregroundColor(.secondary)
                                     .bold()
                             }
-                            // Requirement #5: Adjustable bubble limit via Slider
+                            /// Adjustable bubble limit via Slider
                             Slider(
                                 value: Binding(
                                     get: { Double(bubbles) },
