@@ -91,6 +91,18 @@ struct ContentView: View {
                 .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
                 .disabled(playerName.isEmpty)
                 
+                /// High Score button
+                NavigationLink(destination: HighScoreView()) {
+                    Text("View High Scores")
+                        .font(.system(.headline, design: .rounded).bold())
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, ContentUI.Layout.buttonVerticalPadding)
+                        .background(Color.gray)
+                        .foregroundColor(.white)
+                        .clipShape(Capsule())
+                }
+                .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
+                
                 Spacer()
             }
             .padding(ContentUI.Spacing.standardPadding)
