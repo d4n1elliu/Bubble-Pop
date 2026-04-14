@@ -45,7 +45,6 @@ enum ContentUI {
 struct ContentView: View {
     @State private var playerName: String = ""
     @Environment(PlayerData.self) private var playerData
-    @State private var showSettings = false
     
     @AppStorage("gameTimeframe") private var gameTimeframe = 60
     @AppStorage("maxBubbles") private var maxBubbles = 15
@@ -92,104 +91,24 @@ struct ContentView: View {
                 .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
                 .disabled(playerName.isEmpty)
                 
-                Button(action: { showSettings = true }) {
-                    HStack(spacing: ContentUI.Spacing.settingsIconSpacing) {
-                        Image(systemName: "slider.horizontal.3")
-                        Text("GAME SETTINGS")
-                            .font(.system(size: ContentUI.FontSize.labelSize, weight: .bold, design: .rounded))
-                            .tracking(ContentUI.FontSize.lettersTracking)
-                    }
-                    .foregroundColor(.secondary)
-                }
-                
                 Spacer()
             }
             .padding(ContentUI.Spacing.standardPadding)
             /// Navigation modifiers belong inside the stack on the main view
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
-            // Modern iOS "Half-Sheet" presentation
-            .sheet(isPresented: $showSettings) {
-                SettingsSheetView(timeframe: $gameTimeframe, bubbles: $maxBubbles)
-                    .presentationDetents([.medium])
-                    .presentationDragIndicator(.visible)
-            }
-        }
-    }
-    ///  Setting View
-    struct SettingsSheetView: View {
-        @Environment(\.dismiss) var dismiss
-        @Binding var timeframe: Int
-        @Binding var bubbles: Int
-        
-        var body: some View {
-            NavigationStack {
-                List {
-                    Section {
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text("Game Time")
-                                Spacer()
-                                Text("\(timeframe)s")
-                                    .foregroundColor(.secondary)
-                                    .bold()
-                            }
-                            /// Adjustable timer via Slider
-                            Slider(
-                                value: Binding(
-                                    get: { Double(timeframe) },
-                                    set: { timeframe = Int($0) }
-                                ),
-                                in: 10...120,
-                                step: 10
-                            )
-                            .tint(.blue)
-                        }
-                    } header: {
-                        Text("Duration")
-                    } footer: {
-                        Text("Choose how long each game session lasts (10s to 120s).")
-                    }
-                    
-                    Section {
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text("Max Bubbles")
-                                Spacer()
-                                Text("\(bubbles)")
-                                    .foregroundColor(.secondary)
-                                    .bold()
-                            }
-                            /// Adjustable bubble limit via Slider
-                            Slider(
-                                value: Binding(
-                                    get: { Double(bubbles) },
-                                    set: { bubbles = Int($0) }
-                                ),
-                                in: 5...30,
-                                step: 1
-                            )
-                            .tint(.blue)
-                        }
-                    } header: {
-                        Text("Difficulty")
-                    } footer: {
-                        Text("Sets the maximum number of bubbles displayed simultaneously (5 to 30).")
-                    }
-                }
-                .navigationTitle("Settings")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { dismiss() }
-                            .bold()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink(destination: SettingsView(timeframe: $gameTimeframe, bubbles: $maxBubbles)) {
+                        Image(systemName: "gearshape")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.primary)
                     }
                 }
             }
         }
     }
 }
-    
 /// Rendering for app preview
 #Preview {
     ContentView()
