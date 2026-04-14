@@ -17,6 +17,7 @@ struct GameView: View {
     @State private var showReturnButton = false
     @State private var showScoreBoard = false
     @State private var controller: GameController?
+    @State private var isCountingDown = true
     
     @AppStorage("gameTimeframe") private var timeFrame = 60
     @AppStorage("maxBubbles") private var maximumBubbles = 15
@@ -54,6 +55,15 @@ struct GameView: View {
                         .onChange(of: geo.size) { _, newSize in
                             gameScene.size = newSize
                         }
+                    if isCountingDown {
+                        CountdownOverlayView {
+                            withAnimation {
+                                isCountingDown = false
+                            }
+                            controller?.startGame()
+                        }
+                        .transition(.opacity)
+                    }
                 }
             }
             .ignoresSafeArea(edges: .bottom)
@@ -87,6 +97,8 @@ struct GameView: View {
         gameScene.controller = gc
         gc.scene = gameScene
         
+        gc.maxBubbles = maximumBubbles
+        
         gameScene.isPaused = false
         showReturnButton = false
         
@@ -104,9 +116,6 @@ struct GameView: View {
                 }
             }
         }
-        gc.gameTimeframe = timeFrame
-        gc.maxBubbles = maximumBubbles
-        gc.startGame()
     }
     
     private var endGameOverlay: some View {

@@ -13,7 +13,12 @@ import SpriteKit
 class GameController {
     
     var playTime: Int = GameControllerConfig.initialPlayTime
-    var gameTimeframe: Int = GameControllerConfig.initialPlayTime
+    
+    var gameTimeframe: Int = GameControllerConfig.initialPlayTime {
+            didSet {
+                playTime = gameTimeframe
+            }
+        }
     
     var timer: Timer?
     var player: PlayerData
