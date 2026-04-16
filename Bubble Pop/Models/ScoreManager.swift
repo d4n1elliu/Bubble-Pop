@@ -19,11 +19,23 @@ class ScoreManager {
     }
     /// Take results of the game when it is finished and put the scores onto the leaderboards.
     func updateHighScore(with currentScore: Int, playerName: String) {
+        
+        let trimmedName = playerName.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard !trimmedName.isEmpty && trimmedName.count <= 15 else {
+            print("Score ignored: Player name was empty or only whitespace.")
+            return
+        }
         /// Passing the score to leaderboard to save it permanently
-        leaderboard.addScore(name: playerName, value: currentScore)
+        leaderboard.addScore(name: trimmedName, value: currentScore)
+    }
+    func resetLeaderboard() {
+        leaderboard.clearScores()
     }
     /// Fetching latest score from helper class ScoreManager and trigger an UI refresh when scores list is updated.
     var allScores: [GameScore] {
-        leaderboard.scores
+        leaderboard.scores.filter{
+            !$0.playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
     }
 }

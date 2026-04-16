@@ -62,13 +62,13 @@ class GameScene: SKScene {
         let newSpeed: CGFloat
         
         if controller.playTime <= 10 {
-            newSpeed = 7.5 /// Final 10 seconds: Very fast
+            newSpeed = 5 /// Final 10 seconds: Very fast
         }
         else if controller.playTime <= 30 {
-            newSpeed = 5 /// Under 30 seconds: Faster
+            newSpeed = 3.5/// Under 30 seconds: Faster
         }
         else if controller.playTime <= 60 {
-        newSpeed = 3.5
+            newSpeed = 2
         }
         else {
             newSpeed = 1.0 /// Normal speed

@@ -49,6 +49,10 @@ struct ContentView: View {
     @AppStorage("gameTimeframe") private var gameTimeframe = 60
     @AppStorage("maxBubbles") private var maxBubbles = 15
     
+    private var isNameValid: Bool {
+        !playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: ContentUI.Spacing.rootVStackSpacing) {
@@ -83,13 +87,13 @@ struct ContentView: View {
                         .font(.system(.headline, design: .rounded).bold())
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, ContentUI.Layout.buttonVerticalPadding)
-                        .background(playerName.isEmpty ? Color.gray : Color.blue)
+                        .background(isNameValid ? Color.blue : Color.gray)
                         .foregroundColor(.white)
                         .clipShape(Capsule())
                         .shadow(color: playerName.isEmpty ? .clear : .blue.opacity(ContentUI.Layout.shadowOpacity), radius: ContentUI.Layout.shadowRadius, x: ContentUI.Layout.shadowXOffset, y: ContentUI.Layout.shadowYOffset)
                 }
                 .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
-                //.disabled(playerName.isEmpty)
+                .disabled(!isNameValid)
                 
                 /// High Score button
                 NavigationLink(destination: HighScoreView()) {
