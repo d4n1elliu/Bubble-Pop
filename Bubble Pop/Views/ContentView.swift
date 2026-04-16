@@ -82,7 +82,9 @@ struct ContentView: View {
                 }
                 
                 /// Start game button
-                NavigationLink(destination: GameView(playerName: playerName)) {
+                NavigationLink(destination: GameView(
+                    playerName: playerName))
+                {
                     Text("Start Game")
                         .font(.system(.headline, design: .rounded).bold())
                         .frame(maxWidth: .infinity)
@@ -115,7 +117,7 @@ struct ContentView: View {
             .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(destination: SettingsView(timeframe: $gameTimeframe, bubbles: $maxBubbles)) {
+                    NavigationLink(destination: SettingsView()) {
                         Image(systemName: "gearshape")
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.primary)

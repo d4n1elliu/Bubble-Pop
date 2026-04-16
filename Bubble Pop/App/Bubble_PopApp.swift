@@ -10,6 +10,7 @@ import SwiftData
 
 @main
 struct Bubble_PopApp: App {
+    @State private var playerData = PlayerData()
     @State private var scoreManager = ScoreManager()
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -27,6 +28,7 @@ struct Bubble_PopApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(playerData)
                 .environment(scoreManager)
         }
         .modelContainer(sharedModelContainer)

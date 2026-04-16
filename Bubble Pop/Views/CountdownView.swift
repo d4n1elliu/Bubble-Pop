@@ -42,8 +42,11 @@ struct CountdownOverlayView: View {
                         .foregroundColor(.secondary)
                     
                     Group {
-                        Text("Red: 1 | Pink: 2 | Green: 5").foregroundColor(.red)
-                        Text("Blue: 8 | Black: 10").foregroundColor(.red)
+                        Text("Red: 1").foregroundColor(.red)
+                        Text("Pink: 2").foregroundColor(.red)
+                        Text("Green: 5").foregroundColor(.red)
+                        Text("Blue: 8").foregroundColor(.red)
+                        Text("Black: 10").foregroundColor(.red)
                     }
                     .font(.caption.bold())
                 }

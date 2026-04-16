@@ -15,10 +15,9 @@ class GameController {
     var playTime: Int = GameControllerConfig.initialPlayTime
     
     var gameTimeframe: Int = GameControllerConfig.initialPlayTime {
-            didSet {
-                playTime = gameTimeframe
-            }
-        }
+        didSet { playTime = gameTimeframe }
+    }
+    var maxBubbles: Int = GameControllerConfig.maxBubbles
     
     var timer: Timer?
     var player: PlayerData
@@ -32,8 +31,15 @@ class GameController {
     let pointsMultiplier = PointsMultiplierManager()
     
     var bubblesSpawned: Int = GameControllerConfig.initialSpawnCount
-    var maxBubbles: Int = GameControllerConfig.maxBubbles
     private var bubbleRefreshInterval: Int = 0
+    
+    func configure(time: Int, maxBubbles: Int, scene: GameScene) {
+        self.gameTimeframe = time
+        self.playTime = time
+        self.maxBubbles = maxBubbles
+        self.scene = scene
+        scene.controller = self
+    }
     
     init(player: PlayerData, scoreManager: ScoreManager) {
         self.player = player

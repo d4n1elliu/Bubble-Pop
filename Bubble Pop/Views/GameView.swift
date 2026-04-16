@@ -19,7 +19,7 @@ struct GameView: View {
     @State private var controller: GameController?
     @State private var isCountingDown = true
     
-    @AppStorage("gameTimeframe") private var timeFrame = 60
+    @AppStorage("gameTimeframe") private var timeframe = 60
     @AppStorage("maxBubbles") private var maximumBubbles = 15
     
     @State private var gameScene: GameScene = {
@@ -33,8 +33,8 @@ struct GameView: View {
         VStack(spacing: 0) {
             /// HUD
             HStack {
-                statColumn(title: "Time Left", value: "\(controller?.playTime ?? 60)",
-                           color: (controller?.playTime ?? 60) <= 10 ? .red : .primary)
+                statColumn(title: "Time Left", value: "\(controller?.playTime ?? timeframe)",
+                           color: (controller?.playTime ?? timeframe) <= 10 ? .red : .primary)
                 Spacer()
                 statColumn(title: "Score", value: "\(playerData.currentScore)")
                 Spacer()
@@ -94,20 +94,17 @@ struct GameView: View {
             return
         }
         
-        gameScene.controller = gc
-        gc.scene = gameScene
-        
-        gc.maxBubbles = maximumBubbles
+        gc.configure(time: timeframe, maxBubbles: maximumBubbles, scene: gameScene)
         
         gameScene.isPaused = false
         showReturnButton = false
+        gameScene.playerName = playerName
         
         gc.playerScore = Binding<Int>(
             get: { playerData.currentScore },
             set: { playerData.currentScore = $0 }
         )
         
-        gameScene.playerName = playerName
         gameScene.onReturnHome = {
             DispatchQueue.main.async {
                 withAnimation(.spring()) {

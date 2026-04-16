@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct HighScoreView: View {
-    // Initialize the manager to fetch the saved scores
-    //@State private var manager = LeaderboardManager()
+    /// Initialize the manager to fetch the saved scores
+    ///@State private var manager = LeaderboardManager()
     @Environment(ScoreManager.self) private var scoreManager
     
     var body: some View {
