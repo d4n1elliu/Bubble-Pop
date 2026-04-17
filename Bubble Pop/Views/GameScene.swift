@@ -11,7 +11,7 @@ import Observation
 
 @Observable
 class GameScene: SKScene {
-    weak var controller: GameController?
+    weak var controller: GameViewModel?
     var playerName: String = ""
     
     /// Callback triggers when the game ends to handle UI navigation.

@@ -76,7 +76,6 @@ struct ContentView: View {
                         .padding()
                         .frame(height: ContentUI.Layout.inputFieldHeight)
                         .background(Color.black.opacity(ContentUI.Layout.fieldOpacity), in: RoundedRectangle(cornerRadius: ContentUI.Layout.inputField))
-                        .textInputAutocapitalization(.never)
                         .autocorrectionDisabled(true)
                         .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
                 }

@@ -16,7 +16,7 @@ struct GameView: View {
     
     @State private var showReturnButton = false
     @State private var showScoreBoard = false
-    @State private var controller: GameController?
+    @State private var viewModel: GameViewModel?
     @State private var isCountingDown = true
     
     @AppStorage("gameTimeframe") private var timeframe = 60
@@ -33,12 +33,12 @@ struct GameView: View {
         VStack(spacing: 0) {
             /// HUD
             HStack {
-                statColumn(title: "Time Left", value: "\(controller?.playTime ?? timeframe)",
-                           color: (controller?.playTime ?? timeframe) <= 10 ? .red : .primary)
-                Spacer()
+                statColumn(title: "Time Left", value: "\(viewModel?.playTime ?? timeframe)", color: (viewModel?.playTime ?? timeframe) <= 10 ? .red : .primary)
+                .frame(maxWidth: .infinity)
                 statColumn(title: "Score", value: "\(playerData.currentScore)")
-                Spacer()
+                .frame(maxWidth: .infinity)
                 statColumn(title: "High Score", value: "\(scoreManager.highScore)")
+                .frame(maxWidth: .infinity)
             }
             .padding()
             .background(Color(UIColor.systemBackground))
@@ -60,7 +60,7 @@ struct GameView: View {
                             withAnimation {
                                 isCountingDown = false
                             }
-                            controller?.startGame()
+                            viewModel?.startGame()
                         }
                         .transition(.opacity)
                     }
@@ -79,18 +79,18 @@ struct GameView: View {
     
     private func statColumn(title: String, value: String, color: Color = .primary) -> some View {
         VStack(spacing: 6) {
-            Text(title).font(.system(size: 16, weight: .semibold))
-            Text(value).font(.system(size: 18, weight: .medium, design: .monospaced)).foregroundColor(color)
+            Text(title).font(.system(size: 20, weight: .semibold))
+            Text(value).font(.system(size: 25, weight: .medium, design: .monospaced)).foregroundColor(color)
         }
     }
     
     private func setupGame() {
     
-        if controller == nil {
-            controller = GameController(player: playerData, scoreManager: scoreManager)
+        if viewModel == nil {
+            viewModel = GameViewModel(player: playerData, scoreManager: scoreManager)
         }
         
-        guard let gc = controller else {
+        guard let gc = viewModel else {
             return
         }
         
@@ -99,11 +99,6 @@ struct GameView: View {
         gameScene.isPaused = false
         showReturnButton = false
         gameScene.playerName = playerName
-        
-        gc.playerScore = Binding<Int>(
-            get: { playerData.currentScore },
-            set: { playerData.currentScore = $0 }
-        )
         
         gameScene.onReturnHome = {
             DispatchQueue.main.async {
@@ -121,7 +116,7 @@ struct GameView: View {
             
             VStack(spacing: 30) {
                 VStack(spacing: 10) {
-                    Text(controller?.playTime ?? 0 <= 0 ? "TIME'S UP!" : "GAME OVER")
+                    Text(viewModel?.playTime ?? 0 <= 0 ? "TIME'S UP!" : "GAME OVER")
                         .font(.system(size: 32, weight: .black, design: .rounded))
                     
                     Text(playerName.uppercased())

@@ -30,6 +30,11 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		F3A3DE5F2F91C91800998079 /* New Folder */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "New Folder";
+			sourceTree = "<group>";
+		};
 		F3AB5B492F7396D6004CC5F1 /* Bubble Pop */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Bubble Pop";
@@ -79,6 +84,7 @@
 				F3AB5B592F7396D7004CC5F1 /* Bubble PopTests */,
 				F3AB5B632F7396D7004CC5F1 /* Bubble PopUITests */,
 				F3AB5B482F7396D6004CC5F1 /* Products */,
+				F3A3DE5F2F91C91800998079 /* New Folder */,
 			);
 			sourceTree = "<group>";
 		};
@@ -108,6 +114,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				F3A3DE5F2F91C91800998079 /* New Folder */,
 				F3AB5B492F7396D6004CC5F1 /* Bubble Pop */,
 			);
 			name = "Bubble Pop";
@@ -395,9 +402,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VBT2SH86Z7;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -412,6 +419,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.danielliu.Bubble-Pop";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
