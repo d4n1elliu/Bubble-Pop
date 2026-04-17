@@ -38,7 +38,7 @@ struct CountdownOverlayView: View {
                 
                 VStack(spacing: 8) {
                     Text("Hint: Pop the bubbles to earn points!")
-                        .font(.subheadline)
+                        .font(.headline)
                         .foregroundColor(.secondary)
                     
                     Group {
@@ -48,7 +48,7 @@ struct CountdownOverlayView: View {
                         Text("Blue: 8").foregroundColor(.red)
                         Text("Black: 10").foregroundColor(.red)
                     }
-                    .font(.caption.bold())
+                    .font(.subheadline.bold())
                 }
                 .padding(.top, 40)
             }
