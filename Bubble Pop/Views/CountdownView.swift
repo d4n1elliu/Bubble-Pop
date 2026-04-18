@@ -13,10 +13,12 @@ struct CountdownOverlayView: View {
     @State private var isFlashing = false
     var onFinished: () -> Void
     
+    /// Timer pulish  every second on the main thread
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var body: some View {
         ZStack {
+            /// Semi transparent background
             Color.black.opacity(0.15)
                 .ignoresSafeArea()
             
@@ -25,6 +27,7 @@ struct CountdownOverlayView: View {
                     .font(.system(size: 30, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 
+                /// Animated Countdown Number
                 Text("\(count)")
                     .font(.system(size: 120, weight: .black, design: .rounded))
                     .foregroundColor(.blue)
@@ -35,7 +38,7 @@ struct CountdownOverlayView: View {
                             isFlashing = true
                         }
                     }
-                
+                /// Hiding panel showing bubble point values
                 VStack(spacing: 8) {
                     Text("Hint: Pop the bubbles to earn points!")
                         .font(.headline)
@@ -53,6 +56,7 @@ struct CountdownOverlayView: View {
                 .padding(.top, 40)
             }
         }
+        ///Decrementing counter each second; cancel timer and notify when done
         .onReceive(timer) { _ in
             if count > 1 {
                 count -= 1
