@@ -73,7 +73,10 @@ struct GameView: View {
             if showReturnButton { endGameOverlay }
         }
         .sheet(isPresented: $showScoreBoard) {
-            ScoreBoardView()
+            NavigationStack {
+                HighScoreView()
+            }
+            .environment(scoreManager)
         }
     }
     
