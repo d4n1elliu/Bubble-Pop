@@ -23,7 +23,7 @@ class ScoreManager {
         let trimmedName = playerName.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard !trimmedName.isEmpty && trimmedName.count <= 15 else {
-            print("Score ignored: Player name was empty or only whitespace.")
+            print("Score ignored: name was empty or exceeded 15 characters.")
             return
         }
         /// Passing the score to leaderboard to save it permanently
@@ -34,8 +34,6 @@ class ScoreManager {
     }
     /// Fetching latest score from helper class ScoreManager and trigger an UI refresh when scores list is updated.
     var allScores: [GameScore] {
-        leaderboard.scores.filter{
-            !$0.playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        }
+        leaderboard.scores
     }
 }
