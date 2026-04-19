@@ -57,36 +57,51 @@ class GameScene: SKScene {
             
             lastPositions.removeValue(forKey: tappedNode)
             stuckFrameCounts.removeValue(forKey: tappedNode)
+            
+            let popSequence = SKAction.sequence([
+                SKAction.scale(to: 1.3, duration: 0.08),
+                SKAction.fadeOut(withDuration: 0.12),
+                SKAction.removeFromParent()
+            ])
+            tappedNode.run(popSequence)
             controller?.handleTap(at: lastTapLocation, points: bubblePoints, color: bubbleColor)
-            tappedNode.removeFromParent()
         }
     }
+
+    func bubbleComboEffect(at position: CGPoint, color: UIColor) {
+        let comboLabel = SKLabelNode(text: "1.5x COMBO")
+        comboLabel.fontName = "AvenirNext-Bold"
+        comboLabel.fontSize = 28
+        comboLabel.fontColor = SKColor(cgColor: color.cgColor)
+        comboLabel.position = position
+        comboLabel.zPosition = 10
+        addChild(comboLabel)
+        
+        comboLabel.run(SKAction.sequence([
+            SKAction.group([
+                SKAction.moveBy(x: 0, y: 60, duration: 0.6),
+                SKAction.fadeOut(withDuration: 0.6)
+            ]),
+            SKAction.removeFromParent()
+        ]))
+    }
+    
     override func update(_ currentTime: TimeInterval) {
-        /// Ensure we have access to the controller and the game is active
-        guard let controller = controller, !self.isPaused else {
-            return
-        }
-        
-        /// This example increases speed as time drops below certain thresholds
+        guard let controller, !isPaused else { return }
+
+        /// Speed scaling based on remaining time (EF1)
         let newSpeed: CGFloat
-        if controller.playTime <= 10 {
-            newSpeed = 5 /// Final 10 seconds: Very fast
-        }
-        else if controller.playTime <= 30 {
-            newSpeed = 3.5/// Under 30 seconds: Faster
-        }
-        else if controller.playTime <= 60 {
-            newSpeed = 2
-        }
-        else {
-            newSpeed = 1.0 /// Normal speed
+        switch controller.playTime {
+        case ...10:  newSpeed = 5.0
+        case ...30:  newSpeed = 3.5
+        case ...60:  newSpeed = 2.0
+        default:     newSpeed = 1.0
         }
         
-        /// Applying speed to the physics world
-        /// We use a small check to avoid re-setting it every single frame if it hasn't changed
-        if self.physicsWorld.speed != newSpeed {
-            self.physicsWorld.speed = newSpeed
+        if physicsWorld.speed != newSpeed {
+            physicsWorld.speed = newSpeed
         }
+        
         detectAndReleaseStuckBubbles()
     }
     
@@ -110,33 +125,30 @@ class GameScene: SKScene {
         
         for node in children where node.name == PhysicsConstants.bubbleName {
             let currentPosition = node.position
-            
             if let lastKnownPosition = lastPositions[node] {
-                let horizontalDelta = abs(currentPosition.x - lastKnownPosition.x)
-                let verticalDelta = abs(currentPosition.y - lastKnownPosition.y)
-                
-                if horizontalDelta < minimumMovementThreshold && verticalDelta < minimumMovementThreshold {
+                let hasMoved = abs(currentPosition.x - lastKnownPosition.x) >= minimumMovementThreshold
+                        || abs(currentPosition.y - lastKnownPosition.y) >= minimumMovementThreshold
+                if hasMoved {
+                    stuckFrameCounts[node] = 0
+                } else {
                     stuckFrameCounts[node, default: 0] += 1
                     if stuckFrameCounts[node, default: 0] >= stuckFrameThreshold {
                         nudgeStuckBubble(node)
                         stuckFrameCounts[node] = 0
                     }
-                } else {
-                    stuckFrameCounts[node] = 0
                 }
             }
             lastPositions[node] = currentPosition
         }
-        
         /// Remove tracking entries for bubbles that no longer exist in the scene
-        let activeBubbleNodes = Set(children.filter {
+        let activeBubble = Set(children.filter {
             $0.name == PhysicsConstants.bubbleName
         })
         lastPositions = lastPositions.filter {
-            activeBubbleNodes.contains($0.key)
+            activeBubble.contains($0.key)
         }
         stuckFrameCounts = stuckFrameCounts.filter {
-            activeBubbleNodes.contains($0.key)
+            activeBubble.contains($0.key)
         }
     }
     

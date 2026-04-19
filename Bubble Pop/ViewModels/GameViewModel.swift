@@ -48,13 +48,10 @@ class GameViewModel {
     func startGame() {
         timer?.invalidate()
         timer = nil
-
         bubbleRefreshInterval = 0
         lastTapLocation = nil
         lastTapColor = nil
-
         scene?.removeAllChildren()
-
         playTime = gameTimeframe
         player.currentScore = GameControllerConfig.initialScore
         bubblesSpawned = GameControllerConfig.maxBubbles
@@ -62,9 +59,11 @@ class GameViewModel {
         scene?.isPaused = false
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            guard let self, let scene = self.scene else { return }
+            guard let self, let scene = self.scene else {
+                return
+            }
             for _ in 0..<self.bubblesSpawned {
-                BubbleCreation.spawnBubble(in: scene, avoiding: nil)
+                self.spawnBubbleWithFadeIn(in: scene)
             }
         }
 
@@ -77,7 +76,6 @@ class GameViewModel {
     func endGame() {
         timer?.invalidate()
         timer = nil
-
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.scene?.isPaused = true
@@ -92,10 +90,11 @@ class GameViewModel {
     /// Processes a bubble tap, applies multipliers, and updates the score.
     func handleTap(at location: CGPoint, points: Int, color: UIColor) {
         lastTapLocation = location
-
         var finalPoints = Double(points)
+        
         if let lastColor = lastTapColor, lastColor == color {
             finalPoints = (finalPoints * 1.5).rounded()
+            scene?.bubbleComboEffect(at: location, color: color)
         }
 
         lastTapColor = color
@@ -111,10 +110,10 @@ class GameViewModel {
         }
         playTime -= 1
 
-        bubbleRefreshInterval += 1
-        guard bubbleRefreshInterval >= 2, let scene else { return }
-        bubbleRefreshInterval = 0
-
+        guard let scene else {
+            return
+        }
+        /// Fade out a random selection for existing bubbles
         let currentBubbles = scene.children.filter { $0.name == GameControllerConfig.bubbleNodeName }
         if !currentBubbles.isEmpty {
             let removalCount = Int.random(in: 1...min(currentBubbles.count, 3))
@@ -130,5 +129,20 @@ class GameViewModel {
             BubbleCreation.spawnBubble(in: scene, avoiding: lastTapLocation)
         }
     }
+    /// Spawns a bubble into the scene and fades it in smoothly.
+    private func spawnBubbleWithFadeIn(in scene: GameScene) {
+        let bubble = BubbleCreation.spawnBubble(in: scene, avoiding: lastTapLocation)
+        bubble.alpha = 0
+        bubble.run(SKAction.fadeIn(withDuration: 0.3))
+    }
+    
+    /// Fades a bubble out smoothly then removes it from the scene.
+    private func fadeBubbleOut(_ bubble: SKNode) {
+        bubble.run(SKAction.sequence([
+            SKAction.fadeOut(withDuration: 0.25),
+            SKAction.removeFromParent()
+        ]))
+    }
 }
+
 

@@ -13,19 +13,16 @@ enum PhysicsConstants {
     static let bubbleName = "Bubbles"
     
     /// Physics Constants
-    static let dxThreshold: CGFloat = 0
-    static let dyThreshold: CGFloat = 0
     static let perfectBounciness: CGFloat = 1.0
     static let zeroFriction: CGFloat = 0.0
     static let zeroDamping: CGFloat = 0.0
     static let physicsSpeed: CGFloat = 1.0
 
     /// Motion Constants
-    static let maxImpulseRange: CGFloat = 15.0
-    static let minImpulseRange: CGFloat = -15.0
+    static let impulseRange: ClosedRange<CGFloat> = -15.0...15.0
 }
 
-enum GameControllerConfig{
+enum GameControllerConfig {
     static let initialPlayTime: Int = 60
     static let maxBubbles: Int = 15
     static let timerInterval: TimeInterval = 1.0
@@ -72,75 +69,73 @@ enum BubbleConfig: CaseIterable {
 }
 
 struct BubbleCreation {
+    
     /// Spawns a single bubble with randomized properties and physics into the provided scene.
-    static func spawnBubble(in scene: GameScene, avoiding cursorPosition: CGPoint? = nil) {
-        /// Determining Bubble Type (Color/Points) based on probability
-        let allTypes = BubbleConfig.allCases
-        let totalWeight = allTypes.reduce(0) {
-            $0 + $1.probability
+    @discardableResult
+    static func spawnBubble(in scene: GameScene, avoiding cursorPosition: CGPoint? = nil) -> SKShapeNode {
+        let selectedType = randomBubbleType()
+        let position = randomPosition(in: scene, avoiding: cursorPosition)
+        
+        let bubble = makeBubbleNode(type: selectedType, at: position)
+        scene.addChild(bubble)
+        scene.controller?.bubblesSpawned += 1
+        
+        let randomImpulse = CGVector(
+            dx: CGFloat.random(in: PhysicsConstants.impulseRange),
+            dy: CGFloat.random(in: PhysicsConstants.impulseRange)
+        )
+        bubble.physicsBody?.applyImpulse(randomImpulse)
+        
+        return bubble
+    }
+    
+    /// Selecting bubble type based on weighted probablity
+    private static func randomBubbleType() -> BubbleConfig {
+        let totalWeight = BubbleConfig.allCases.reduce(0) { $0 + $1.probability }
+        let roll = Int.random(in: 1...totalWeight)
+        var cumulative = 0
+        for type in BubbleConfig.allCases {
+            cumulative += type.probability
+            if roll <= cumulative { return type }
         }
-        let randomNumber = Int.random(in: 1...totalWeight)
+        return .red
+    }
+    
+    /// Finds a valid random position within the scene bounds, avoiding the cursor if provided.
+    private static func randomPosition(in scene: GameScene, avoiding cursorPosition: CGPoint?) -> CGPoint {
+        let r = PhysicsConstants.bubbleRadius
+        var position = CGPoint.zero
         
-        var selectedType: BubbleConfig = .red
-        var cumulativeWeight = 0
-        
-        for type in allTypes {
-            cumulativeWeight += type.probability
-            if randomNumber <= cumulativeWeight {
-                selectedType = type
-                break
-            }
-        }
-        
-        var xPos: CGFloat = 0
-        var yPos: CGFloat = 0
-        var isValidPosition = false
-        var attempts = 0
-
-        /// Using while loop for  !isValidPosition so the loop runs until we find a good spot
-        while !isValidPosition && attempts < 50 {
-            attempts += 1
+        for _ in 0..<50 {
+            let x = CGFloat.random(in: r...(scene.size.width - r))
+            let y = CGFloat.random(in: r...(scene.size.height - r))
+            position = CGPoint(x: x, y: y)
             
-            /// Ensures xPos uses width and yPos uses height
-            xPos = CGFloat.random(in: PhysicsConstants.bubbleRadius...(scene.size.width - PhysicsConstants.bubbleRadius))
-            yPos = CGFloat.random(in: PhysicsConstants.bubbleRadius...(scene.size.height - PhysicsConstants.bubbleRadius))
-            
-            if let cursor = cursorPosition {
-                let distance = sqrt(pow(xPos - cursor.x, 2) + pow(yPos - cursor.y, 2))
-                /// Only accept positions at least 100 points away from cursor
-                if distance > 100 {
-                    isValidPosition = true
-                }
-            } else {
-                /// If no cursor (at game start), any position is immediately valid
-                isValidPosition = true
-            }
+            /// Accept any position if no cursor, otherwise ensure 100pt clearance
+            guard let cursor = cursorPosition else { break }
+            let distance = hypot(x - cursor.x, y - cursor.y)
+            if distance > 100 { break }
         }
-        
-        /// Creating visual bubble body
+        return position
+    }
+    
+    /// Builds and returns a configured bubble SKShapeNode.
+    private static func makeBubbleNode(type: BubbleConfig, at position: CGPoint) -> SKShapeNode {
         let bubble = SKShapeNode(circleOfRadius: PhysicsConstants.bubbleRadius)
         bubble.name = PhysicsConstants.bubbleName
-        bubble.fillColor = selectedType.color
+        bubble.fillColor = type.color
         bubble.strokeColor = .white
         bubble.lineWidth = 2
-        bubble.userData = ["points": selectedType.points, "color": selectedType.color]
-        /// Randomize Position (Ensuring it stays within screen bounds)
-        bubble.position = CGPoint(x: xPos, y: yPos)
+        bubble.position = position
+        bubble.userData = ["points": type.points, "color": type.color]
         
-        /// Configure Physics Body
         let body = SKPhysicsBody(circleOfRadius: PhysicsConstants.bubbleRadius)
         body.restitution = PhysicsConstants.perfectBounciness
         body.friction = PhysicsConstants.zeroFriction
         body.linearDamping = PhysicsConstants.zeroDamping
         body.allowsRotation = false
-        
         bubble.physicsBody = body
-        scene.addChild(bubble)
-        scene.controller?.bubblesSpawned += 1
-
-        let randomX = CGFloat.random(in: PhysicsConstants.minImpulseRange...PhysicsConstants.maxImpulseRange)
-        let randomY = CGFloat.random(in: PhysicsConstants.minImpulseRange...PhysicsConstants.maxImpulseRange)
         
-        body.applyImpulse(CGVector(dx: randomX, dy: randomY))
+        return bubble
     }
 }
