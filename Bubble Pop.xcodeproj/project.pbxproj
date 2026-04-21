@@ -30,11 +30,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		F3A3DE5F2F91C91800998079 /* New Folder */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "New Folder";
-			sourceTree = "<group>";
-		};
 		F3AB5B492F7396D6004CC5F1 /* Bubble Pop */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Bubble Pop";
@@ -84,7 +79,6 @@
 				F3AB5B592F7396D7004CC5F1 /* Bubble PopTests */,
 				F3AB5B632F7396D7004CC5F1 /* Bubble PopUITests */,
 				F3AB5B482F7396D6004CC5F1 /* Products */,
-				F3A3DE5F2F91C91800998079 /* New Folder */,
 			);
 			sourceTree = "<group>";
 		};
@@ -114,7 +108,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				F3A3DE5F2F91C91800998079 /* New Folder */,
 				F3AB5B492F7396D6004CC5F1 /* Bubble Pop */,
 			);
 			name = "Bubble Pop";
