@@ -24,9 +24,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		F3AB5B472F7396D6004CC5F1 /* Bubble Pop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bubble Pop.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		F3AB5B562F7396D7004CC5F1 /* Bubble PopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bubble PopTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		F3AB5B602F7396D7004CC5F1 /* Bubble PopUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bubble PopUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3AB5B472F7396D6004CC5F1 /* Bubble Pop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "Bubble Pop.app"; path = "/Users/danielliu/Desktop/Bubble Pop/build/Debug-iphoneos/Bubble Pop.app"; sourceTree = "<absolute>"; };
+		F3AB5B562F7396D7004CC5F1 /* Bubble PopTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Bubble PopTests.xctest"; path = "/Users/danielliu/Desktop/Bubble Pop/build/Debug-iphoneos/Bubble Pop.app/PlugIns/Bubble PopTests.xctest"; sourceTree = "<absolute>"; };
+		F3AB5B602F7396D7004CC5F1 /* Bubble PopUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Bubble PopUITests.xctest"; path = "/Users/danielliu/Desktop/Bubble Pop/build/Debug-iphoneos/Bubble PopUITests-Runner.app/PlugIns/Bubble PopUITests.xctest"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -78,18 +78,7 @@
 				F3AB5B492F7396D6004CC5F1 /* Bubble Pop */,
 				F3AB5B592F7396D7004CC5F1 /* Bubble PopTests */,
 				F3AB5B632F7396D7004CC5F1 /* Bubble PopUITests */,
-				F3AB5B482F7396D6004CC5F1 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		F3AB5B482F7396D6004CC5F1 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				F3AB5B472F7396D6004CC5F1 /* Bubble Pop.app */,
-				F3AB5B562F7396D7004CC5F1 /* Bubble PopTests.xctest */,
-				F3AB5B602F7396D7004CC5F1 /* Bubble PopUITests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -196,7 +185,7 @@
 			mainGroup = F3AB5B3E2F7396D6004CC5F1;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = F3AB5B482F7396D6004CC5F1 /* Products */;
+			productRefGroup = F3AB5B3E2F7396D6004CC5F1;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (

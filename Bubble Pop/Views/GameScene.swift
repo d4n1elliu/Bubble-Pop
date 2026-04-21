@@ -17,6 +17,9 @@ class GameScene: SKScene {
     /// Callback triggers when the game ends to handle UI navigation.
     var onReturnHome: (() -> Void)?
     
+    /// Calltrigger when bubble is popped to play sound and gun recoil
+    var onBubblePopped: (() -> Void)?
+    
     private var lastPositions: [SKNode: CGPoint] = [:]
     private var stuckFrameCounts: [SKNode: Int] = [:]
     
@@ -57,6 +60,8 @@ class GameScene: SKScene {
             
             lastPositions.removeValue(forKey: tappedNode)
             stuckFrameCounts.removeValue(forKey: tappedNode)
+            
+            run(SKAction.playSoundFileNamed("02_waterdrop_trimmed.mp3", waitForCompletion: false))
             
             let popSequence = SKAction.sequence([
                 SKAction.scale(to: 1.3, duration: 0.08),
