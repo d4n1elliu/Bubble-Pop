@@ -1,4 +1,4 @@
-# BubblePop 🫧
+# BubblePop 
 
 BubblePop is an interactive, casual iOS game developed in swift. This game challenges players to pop randomly appearing bubbles of various colors to achieve the highest score within a set timeframe.
 
@@ -25,7 +25,7 @@ BubblePop is an interactive, casual iOS game developed in swift. This game chall
 - UI Framework: SwiftUI (Storyboard is strictly prohibited)   
 - Persistence: Local file or database for high score storage
 
-## DEMO
+## Demo
 
 ![ScreenRecording2026-04-10at2 59 16am-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/f9863258-cb43-4fe9-bd7a-91ef0846aaea)
 
