@@ -33,7 +33,7 @@ Bubble Pop/
 
 ## Demo
 
-![ScreenRecording2026-04-10at2 59 16am-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/f9863258-cb43-4fe9-bd7a-91ef0846aaea)
+https://github.com/user-attachments/assets/f4c1c4db-8174-4b1d-8123-64955fc2bd5c
 
 ## User Login Screen 
 <img width="500" height="500" alt="Screenshot 2026-04-23 at 9 19 36 pm" src="https://github.com/user-attachments/assets/2741670e-4ac9-4a6b-9bd8-fc727d4b2288" />
@@ -55,6 +55,10 @@ Players need to pop spawned bubbles under a set 60 seconds time limit and there 
 <br>
 
 A final results overlay will displays player's overall performance and include a direct path to return back to main menu for a new game run.
+
+## Bubble and Timer Adjustments Settings
+
+<img width="500" height="500" alt="Screenshot 2026-04-23 at 10 40 20 pm" src="https://github.com/user-attachments/assets/62e272a2-e4a8-4d89-a374-2dadd7d0ea26" />
 
 ## Core Gameplay Mechanics
 | Color | Point | Chance |
