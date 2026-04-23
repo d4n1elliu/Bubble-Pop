@@ -30,19 +30,25 @@ BubblePop is an interactive, casual iOS game developed in swift. This game chall
 ![ScreenRecording2026-04-10at2 59 16am-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/f9863258-cb43-4fe9-bd7a-91ef0846aaea)
 
 ## User Login Screen 
-<img width="250" height="500" alt="Adobe Express - file" src="https://github.com/user-attachments/assets/60dc785e-0fda-4a10-a37a-09265da1e231" />
+<img width="500" height="500" alt="Screenshot 2026-04-23 at 9 19 36 pm" src="https://github.com/user-attachments/assets/2741670e-4ac9-4a6b-9bd8-fc727d4b2288" />
+
+<br>
 
 Players are required to enter a name before initiating the game and progress to gameplay scene. 
 
 ## Gameplay Screen
-<img width="250" height="500" alt="Untitled" src="https://github.com/user-attachments/assets/2bde0505-58d2-45c4-b496-856086887908" />
+<img width="500" height="500" alt="Screenshot 2026-04-23 at 9 22 17 pm" src="https://github.com/user-attachments/assets/9b6326dc-3881-4e13-a342-85adec2c1b68" />
 
-Players need to pop spawned bubbles under a set 60 seconds time limit and there is a HUD tracking provided at the top for live performance metrics. 
+<br>
+
+Players need to pop spawned bubbles under a set 60 seconds time limit and there is a HUD tracking provided at the top for live performance metrics.
 
 ## Scoreboard Screen 
-<img width="250" height="500" alt="Untitled (1)" src="https://github.com/user-attachments/assets/fa93fa7f-e676-4be4-add8-107da7dc71af" />
+<img width="500" height="500" alt="Screenshot 2026-04-23 at 9 23 19 pm" src="https://github.com/user-attachments/assets/38c43a76-88f8-4a8b-ad6e-9d33170257f6" />
+
+<br>
 
 A final results overlay will displays player's overall performance and include a direct path to return back to main menu for a new game run.
 
 ## AI Usage
-This README file was created by Google Gemini. Swift code was written by me and reviewed/edited by Google Gemini. 
+This README file was created by Google Gemini. Swift code was written by me and reviewed/edited by Google Gemini & Claude. 
