@@ -85,7 +85,7 @@ class GameScene: SKScene {
 
         run(SKAction.playSoundFileNamed("1.5x_combo_sound.mp3", waitForCompletion: false))
 
-        let label = SKLabelNode(text: "🔥 \(currentComboCount)x COMBO")
+        let label = SKLabelNode(text: "\(currentComboCount)x COMBO")
         label.fontName = "AvenirNext-Bold"
         label.fontSize = 28
         label.fontColor = SKColor(cgColor: color.cgColor)
@@ -234,6 +234,18 @@ class GameScene: SKScene {
             dx: horizontalDirection * impulseStrength,
             dy: verticalDirection * impulseStrength
         )
+    }
+    
+    func prepareToRestartSession() {
+        self.removeAllChildren()
+        self.removeAllActions()
+        lastPositions.removeAll()
+        stuckFrameCounts.removeAll()
+        lastBubbleColorPopped = nil
+        currentComboCount = 0
+        self.isPaused = false
+        self.physicsWorld.speed = PhysicsConstants.physicsSpeed
+        setupPhysics()
     }
     
     /// Resets the scene state and clears all active nodes for a new game session.

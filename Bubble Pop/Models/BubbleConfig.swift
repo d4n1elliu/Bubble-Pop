@@ -124,8 +124,8 @@ struct BubbleCreation {
         let bubble = SKShapeNode(circleOfRadius: PhysicsConstants.bubbleRadius)
         bubble.name = PhysicsConstants.bubbleName
         bubble.fillColor = type.color
-        bubble.strokeColor = SKColor(cgColor: type.color.withAlphaComponent(0.25).cgColor)
-        bubble.lineWidth = 1
+        bubble.strokeColor = SKColor(white: 0.0, alpha: 0.25)
+        bubble.lineWidth = 2.5
         bubble.position = position
         bubble.userData = ["points": type.points, "color": type.color]
         

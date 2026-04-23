@@ -19,6 +19,7 @@ struct GameView: View {
     @State private var showScoreBoard = false
     @State private var viewModel: GameViewModel?
     @State private var isCountingDown = true
+    @State private var countdownValue: Int = 0
     
     @AppStorage("gameTimeframe") private var timeframe = 60
     @AppStorage("maxBubbles") private var maximumBubbles = 15
@@ -74,6 +75,7 @@ struct GameView: View {
                             withAnimation { isCountingDown = false }
                             viewModel?.startGame()
                         }
+                        .id(countdownValue)
                         .transition(.opacity)
                     }
                 }
@@ -143,7 +145,9 @@ struct GameView: View {
                     buttonCapsule("Restart Game", color: .blue) {
                         playerData.currentScore = 0
                         showReturnButton = false
-                        gameScene.restartGameSession()
+                        countdownValue += 1
+                        isCountingDown = true
+                        gameScene.prepareToRestartSession()
                     }
                     buttonCapsule("Scoreboard", color: .orange) {
                         showScoreBoard = true
