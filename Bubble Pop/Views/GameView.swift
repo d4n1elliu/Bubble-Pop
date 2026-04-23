@@ -19,14 +19,14 @@ struct GameView: View {
     @State private var showScoreBoard = false
     @State private var viewModel: GameViewModel?
     @State private var isCountingDown = true
-
+    
     @AppStorage("gameTimeframe") private var timeframe = 60
     @AppStorage("maxBubbles") private var maximumBubbles = 15
 
     @State private var gameScene: GameScene = {
         let scene = GameScene()
         scene.scaleMode = .resizeFill
-        scene.backgroundColor = SKColor(red: 255/255, green: 240/255, blue: 240/255, alpha: 1.0)
+        scene.backgroundColor = .clear
         return scene
     }()
 
@@ -42,11 +42,23 @@ struct GameView: View {
                     .frame(maxWidth: .infinity)
             }
             .padding()
-            .background(Color(UIColor.systemBackground))
+            .background(.ultraThinMaterial)
 
             /// Game Layer
             GeometryReader { geo in
                 ZStack {
+                    
+                    /// Gradient background matching onboarding aesthetic
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color(red: 0.87, green: 0.85, blue: 0.75), location: 0.0),
+                            .init(color: Color(red: 0.50, green: 0.72, blue: 0.78), location: 0.5),
+                            .init(color: Color(red: 0.45, green: 0.34, blue: 0.67), location: 1.0)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .ignoresSafeArea()
                     SpriteView(scene: gameScene, options: [.allowsTransparency, .ignoresSiblingOrder])
                         .onAppear {
                             gameScene.size = geo.size

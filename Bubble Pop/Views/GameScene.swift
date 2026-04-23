@@ -17,11 +17,10 @@ class GameScene: SKScene {
     /// Callback triggers when the game ends to handle UI navigation.
     var onReturnHome: (() -> Void)?
     
-    /// Calltrigger when bubble is popped to play sound and gun recoil
-    var onBubblePopped: (() -> Void)?
-    
     private var lastPositions: [SKNode: CGPoint] = [:]
     private var stuckFrameCounts: [SKNode: Int] = [:]
+    private var lastBubbleColorPopped: UIColor?
+    private var currentComboCount: Int = 0
     
     override func didMove(to view: SKView) {
         setupPhysics()
@@ -61,8 +60,7 @@ class GameScene: SKScene {
             lastPositions.removeValue(forKey: tappedNode)
             stuckFrameCounts.removeValue(forKey: tappedNode)
             
-            run(SKAction.playSoundFileNamed("02_waterdrop_trimmed.mp3", waitForCompletion: false))
-            
+            run(SKAction.playSoundFileNamed("bubblepop_sound.mp3", waitForCompletion: false))
             spawnPopParticles(at: tappedNode.position, color: bubbleColor, radius: tappedNode.frame.width / 2)
             let popSequence = SKAction.sequence([
                 SKAction.scale(to: 1.3, duration: 0.08),
@@ -71,21 +69,31 @@ class GameScene: SKScene {
             ])
             tappedNode.run(popSequence)
             controller?.handleTap(at: lastTapLocation, points: bubblePoints, color: bubbleColor)
+            registerCombo(color: bubbleColor, at: tappedNode.position)
         }
     }
 
-    func bubbleComboEffect(at position: CGPoint, color: UIColor) {
-        
-        run(SKAction.playSoundFileNamed("star_shoot_A.mp3", waitForCompletion: false))
-        let comboLabel = SKLabelNode(text: "1.5x COMBO")
-        comboLabel.fontName = "AvenirNext-Bold"
-        comboLabel.fontSize = 28
-        comboLabel.fontColor = SKColor(cgColor: color.cgColor)
-        comboLabel.position = position
-        comboLabel.zPosition = 10
-        addChild(comboLabel)
-        
-        comboLabel.run(SKAction.sequence([
+    func registerCombo(color: UIColor, at position: CGPoint) {
+        if let last = lastBubbleColorPopped, last == color {
+            currentComboCount += 1
+        } else {
+            currentComboCount = 1
+        }
+        lastBubbleColorPopped = color
+
+        guard currentComboCount >= 2 else { return }
+
+        run(SKAction.playSoundFileNamed("1.5x_combo_sound.mp3", waitForCompletion: false))
+
+        let label = SKLabelNode(text: "🔥 \(currentComboCount)x COMBO")
+        label.fontName = "AvenirNext-Bold"
+        label.fontSize = 28
+        label.fontColor = SKColor(cgColor: color.cgColor)
+        label.position = position
+        label.zPosition = 10
+        addChild(label)
+
+        label.run(SKAction.sequence([
             SKAction.group([
                 SKAction.moveBy(x: 0, y: 60, duration: 0.6),
                 SKAction.fadeOut(withDuration: 0.6)
@@ -139,7 +147,6 @@ class GameScene: SKScene {
         if physicsWorld.speed != newSpeed {
             physicsWorld.speed = newSpeed
         }
-        
         detectAndReleaseStuckBubbles()
     }
     
@@ -235,7 +242,8 @@ class GameScene: SKScene {
         self.removeAllActions()
         lastPositions.removeAll()
         stuckFrameCounts.removeAll()
-        
+        lastBubbleColorPopped = nil
+        currentComboCount = 0
         self.isPaused = false
         self.physicsWorld.speed = PhysicsConstants.physicsSpeed
         setupPhysics()

@@ -94,7 +94,6 @@ class GameViewModel {
         
         if let lastColor = lastTapColor, lastColor == color {
             finalPoints = (finalPoints * 1.5).rounded()
-            scene?.bubbleComboEffect(at: location, color: color)
         }
 
         lastTapColor = color
