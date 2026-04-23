@@ -2,28 +2,34 @@
 
 BubblePop is an interactive, casual iOS game developed in swift. This game challenges players to pop randomly appearing bubbles of various colors to achieve the highest score within a set timeframe.
 
-## Core Gameplay Mechanics
-| Color | Point | Chance |
-| :--- | :--- | :--- |
-| 🔴 Red: | 1 Point | 40% chance |
-| 🟣 Pink: | 2 Points | 30% chance |
-| 🟢 Green: | 5 Points | 15% chance |
-| 🔵 Blue: | 8 Points | 10% chance |
-| ⚫ Black: | 10 Points | 5% chance |
+## Project Structure
 
-- Dynamic Bubble Generation: Bubbles appear at random positions on the screen without overlapping or touching the edges. 
-- Score System: Each bubble color represents a different point value and probability for appearing.
-- Combo Bonus: Popping two or more bubbles of the same color consecutively will earn a 1.5x multiplier for the subsequent bubbles.
-
-## Features
-- Customisable Settings: Players can adjust the game duration (60 seconds) default and the maximum number of bubbles displayed simultaneously (15 seconds).  
-- Persistent Leaderboard: Player names and high scores are saved locally and displayed on a scoreboard at the end of each game.  
-- Adaptive Design: Functional across different iOS devices (iPhone/iPad) and screen orientations.  
-
-## Tech Stack
-- Language: Swift   
-- UI Framework: SwiftUI (Storyboard is strictly prohibited)   
-- Persistence: Local file or database for high score storage
+```
+Bubble Pop/
+├── App/
+│   └── Bubble_PopApp.swift           # App entry point and environment setup
+├── Models/
+│   ├── BubbleConfig.swift            # Bubble types, colours, points, physics constants
+│   ├── Item.swift                    # SwiftData model
+│   ├── LeaderBoardManager.swift      # Leaderboard data management
+│   ├── PlayerData.swift              # Current player state and score
+│   ├── PlayerRecord.swift            # Persistent player score record
+│   ├── PointsMultiplierManager.swift # Combo multiplier logic
+│   └── ScoreManager.swift            # High score tracking and persistence
+├── ViewModels/
+│   └── GameViewModel.swift           # Core game logic, timer, bubble spawning
+├── Views/
+│   ├── ContentView.swift             # Home/onboarding screen with name entry
+│   ├── CountdownView.swift           # Pre game countdown overlay (3, 2, 1)
+│   ├── GameScene.swift               # SpriteKit scene, physics, bubble interactions
+│   ├── GameView.swift                # Main game screen bridging SwiftUI and SpriteKit
+│   ├── HighScoreView.swift           # Leaderboard screen
+│   └── SettingView.swift             # Game settings (time, max bubbles)
+├── Sound/
+│   ├── bubblepop_sound.mp3           # Bubble pop sound effect
+│   └── 1.5x_combo_sound.mp3          # Combo chain sound effect
+└── Assets/                           # App icons & images
+```
 
 ## Demo
 
@@ -50,5 +56,35 @@ Players need to pop spawned bubbles under a set 60 seconds time limit and there 
 
 A final results overlay will displays player's overall performance and include a direct path to return back to main menu for a new game run.
 
+## Core Gameplay Mechanics
+| Color | Point | Chance |
+| :--- | :--- | :--- |
+| 🔴 Red: | 1 Point | 40% chance |
+| 🟣 Pink: | 2 Points | 30% chance |
+| 🟢 Green: | 5 Points | 15% chance |
+| 🔵 Blue: | 8 Points | 10% chance |
+| ⚫ Black: | 10 Points | 5% chance |
+
+- Dynamic Bubble Generation: Bubbles appear at random positions on the screen without overlapping or touching the edges. 
+- Score System: Each bubble color represents a different point value and probability for appearing.
+- Combo Bonus: Popping two or more bubbles of the same color consecutively will earn a 1.5x multiplier for the subsequent bubbles.
+
+## Features
+- Customisable Settings: Players can adjust the game duration (60 seconds) default and the maximum number of bubbles displayed simultaneously (15 seconds).  
+- Persistent Leaderboard: Player names and high scores are saved locally and displayed on a scoreboard at the end of each game.  
+- Adaptive Design: Functional across different iOS devices (iPhone/iPad) and screen orientations.
+
+## Tech Stack
+
+| Layer       | Technology                          |
+| :---------- | :---------------------------------- |
+| Language    | Swift                               |
+| UI          | SwiftUI                             |
+| Game Engine | SpriteKit                           |
+| Persistence | SwiftData                           |
+
+---
+
 ## AI Usage
-This README file was created by Google Gemini. Swift code was written by me and reviewed/edited by Google Gemini & Claude. 
+
+The Swift code was written by me and reviewed/edited with assistance from Google Gemini and Claude. This README was structured and formatted with AI assistance. 
