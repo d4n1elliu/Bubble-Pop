@@ -63,6 +63,7 @@ class GameScene: SKScene {
             
             run(SKAction.playSoundFileNamed("02_waterdrop_trimmed.mp3", waitForCompletion: false))
             
+            spawnPopParticles(at: tappedNode.position, color: bubbleColor, radius: tappedNode.frame.width / 2)
             let popSequence = SKAction.sequence([
                 SKAction.scale(to: 1.3, duration: 0.08),
                 SKAction.fadeOut(withDuration: 0.12),
@@ -74,6 +75,8 @@ class GameScene: SKScene {
     }
 
     func bubbleComboEffect(at position: CGPoint, color: UIColor) {
+        
+        run(SKAction.playSoundFileNamed("star_shoot_A.mp3", waitForCompletion: false))
         let comboLabel = SKLabelNode(text: "1.5x COMBO")
         comboLabel.fontName = "AvenirNext-Bold"
         comboLabel.fontSize = 28
@@ -89,6 +92,36 @@ class GameScene: SKScene {
             ]),
             SKAction.removeFromParent()
         ]))
+    }
+    
+    /// Spawns small circle shards that fly outward from a popped bubble.
+    private func spawnPopParticles(at position: CGPoint, color: UIColor, radius: CGFloat) {
+        let particleCount = 10
+        let particleRadius = radius * 0.18
+
+        for i in 0..<particleCount {
+            let angle = (CGFloat(i) / CGFloat(particleCount)) * .pi * 2
+            let shard = SKShapeNode(circleOfRadius: particleRadius)
+            shard.fillColor = color
+            shard.strokeColor = .clear
+            shard.position = position
+            shard.zPosition = 5
+            shard.alpha = 1.0
+            addChild(shard)
+
+            let distance = CGFloat.random(in: radius * 1.2...radius * 2.2)
+            let jitter = CGFloat.random(in: -0.3...0.3)
+            let dx = cos(angle + jitter) * distance
+            let dy = sin(angle + jitter) * distance
+
+            let fly = SKAction.moveBy(x: dx, y: dy, duration: 0.35)
+            fly.timingMode = .easeOut
+            let shrink = SKAction.scale(to: 0.1, duration: 0.35)
+            let fade = SKAction.fadeOut(withDuration: 0.35)
+            let group = SKAction.group([fly, shrink, fade])
+            let remove = SKAction.removeFromParent()
+            shard.run(SKAction.sequence([group, remove]))
+        }
     }
     
     override func update(_ currentTime: TimeInterval) {
