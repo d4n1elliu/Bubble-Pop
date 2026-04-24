@@ -72,7 +72,7 @@ class GameViewModel {
         }
     }
 
-    /// Stops the timer and triggers navigation back to the home/result screen.
+    // Stops the timer and triggers navigation back to the home/result screen.
     func endGame() {
         timer?.invalidate()
         timer = nil
