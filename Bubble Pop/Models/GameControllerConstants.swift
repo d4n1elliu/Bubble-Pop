@@ -61,4 +61,6 @@ enum GameControllerConfig {
     static let firstComboCount: Int = 1
     static let resetFrameCount: Int = 0
     static let minimumMagnitude: CGFloat = 0
+    static let bubbleInitialAlpha: CGFloat = 0
+    static let gameOverThreshold: Int = 0
 }

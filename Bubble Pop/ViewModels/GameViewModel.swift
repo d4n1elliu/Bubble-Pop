@@ -94,7 +94,7 @@ class GameViewModel {
     }
     
     private func tick() {
-        guard remainingPlayTime > 0 else {
+        guard remainingPlayTime > GameControllerConfig.gameOverThreshold else {
             endGame()
             return
         }
@@ -111,7 +111,7 @@ class GameViewModel {
         
         let remainingBubbleCount = scene.children.filter { $0.name == GameControllerConfig.bubbleNodeName }.count
         let availableBubbleSlots = GameControllerConfig.maxBubbles - remainingBubbleCount
-        guard availableBubbleSlots > 0 else { return }
+        guard availableBubbleSlots > GameControllerConfig.gameOverThreshold else { return }
         
         let bubblesToSpawn = Int.random(in: GameControllerConfig.minBubbleRemoval...availableBubbleSlots)
         for _ in 0..<bubblesToSpawn {
@@ -120,7 +120,7 @@ class GameViewModel {
     }
     private func spawnBubbleWithFadeIn(in scene: GameScene) {
         let bubble = BubbleCreation.spawnBubble(in: scene, avoiding: lastTappedLocation)
-        bubble.alpha = 0
+        bubble.alpha = GameControllerConfig.bubbleInitialAlpha
         bubble.run(SKAction.fadeIn(withDuration: GameControllerConfig.bubbleFadeInDuration))
     }
     

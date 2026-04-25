@@ -10,8 +10,8 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     
-    @AppStorage("gameTimeframe") var timeframe: Int = 60
-    @AppStorage("maxBubbles") var bubbles: Int = 15
+    @AppStorage("gameTimeframe") var timeframe: Int = GameControllerConfig.initialPlayTime
+    @AppStorage("maxBubbles") var bubbles: Int = GameControllerConfig.maxBubbles
     
     var body: some View {
         NavigationStack {
