@@ -8,45 +8,12 @@
 import SwiftUI
 import SwiftData
 
-enum ContentUI {
-    enum Spacing {
-        static let rootVStackSpacing: CGFloat = 35
-        static let labelToField: CGFloat = 12
-        static let horizontalPadding: CGFloat = 70
-        static let standardPadding: CGFloat = 40
-        static let settingsIconSpacing: CGFloat = 8
-    }
-    enum FontSize {
-        static let titleSize: CGFloat = 80
-        static let labelSize: CGFloat = 12
-        static let inputNameSize: CGFloat = 18
-        static let lettersTracking: CGFloat = 2
-    }
-    enum Layout {
-        static let inputFieldHeight: CGFloat = 55
-        static let inputField: CGFloat = 15
-        static let cornerRadius: CGFloat = 25
-        static let buttonVerticalPadding: CGFloat = 18
-        static let spacerHeight: CGFloat = 5
-        static let settingsIconSize: CGFloat = 18
-        static let settingsIconPadding: CGFloat = 10
-        static let buttonCornerRadius: CGFloat = 16
-        static let hStackSpacing: CGFloat = 8
-        static let shadowRadius: CGFloat = 10
-        static let shadowXOffset: CGFloat = 0
-        static let shadowYOffset: CGFloat = 5
-        static let shadowOpacity: Double = 0.3
-        
-        static let fieldOpacity: Double = 0.05
-    }
-}
-
 struct ContentView: View {
     @State private var playerName: String = ""
     @Environment(PlayerData.self) private var playerData
     
-    @AppStorage("gameTimeframe") private var gameTimeframe = 60
-    @AppStorage("maxBubbles") private var maxBubbles = 15
+    @AppStorage("gameTimeframe") private var gameTimeframe = GameControllerConfig.initialPlayTime
+    @AppStorage("maxBubbles") private var maxBubbles = GameControllerConfig.maxBubbles
     
     private var isNameValid: Bool {
         !playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -55,9 +22,9 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                bubbleBackground
+                mainBackground
                 VStack(spacing: ContentUI.Spacing.rootVStackSpacing) {
-                    Spacer().frame(height: 5)
+                    Spacer().frame(height: ContentUI.Layout.spacerHeight)
                 
                     Text("Bubble Pop")
                         .font(.system(size: ContentUI.FontSize.titleSize, weight: .black, design: .rounded))
@@ -69,7 +36,7 @@ struct ContentView: View {
                             )
                         )
                         .multilineTextAlignment(.center)
-                        .lineLimit(2)
+                        .lineLimit(ContentUI.Layout.titleLineLimit)
                     
                     VStack(spacing: ContentUI.Spacing.labelToField) {
                         Text("PLAYER NAME")
@@ -88,7 +55,7 @@ struct ContentView: View {
                     }
                     
                     NavigationLink(destination: GameView(playerName: playerName)) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: ContentUI.Layout.hStackSpacing) {
                             Image(systemName: "play.fill")
                             Text("Start Game")
                         }
@@ -99,11 +66,11 @@ struct ContentView: View {
                         .background(
                             isNameValid
                             ? LinearGradient(colors: [.orange, .red], startPoint: .leading, endPoint: .trailing)
-                            : LinearGradient(colors: [.gray.opacity(0.5), .gray.opacity(0.5)], startPoint: .leading, endPoint: .trailing)
+                            : LinearGradient(colors: [.gray.opacity(ContentUI.Layout.grayButtonOpacity), .gray.opacity(ContentUI.Layout.grayButtonOpacity)], startPoint: .leading, endPoint: .trailing)
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .clipShape(RoundedRectangle(cornerRadius: ContentUI.Layout.buttonCornerRadius))
                         .shadow(
-                            color: isNameValid ? .blue.opacity(0.4) : .clear,
+                            color: isNameValid ? .blue.opacity(ContentUI.Layout.buttonShadowOpacity) : .clear,
                             radius: ContentUI.Layout.shadowRadius,
                             y: ContentUI.Layout.shadowYOffset
                         )
@@ -112,7 +79,7 @@ struct ContentView: View {
                     .disabled(!isNameValid)
                     
                     NavigationLink(destination: HighScoreView()) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: ContentUI.Layout.hStackSpacing) {
                             Image(systemName: "trophy.fill")
                             Text("View High Scores")
                         }
@@ -127,9 +94,9 @@ struct ContentView: View {
                                 endPoint: .trailing
                             )
                         )
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .clipShape(RoundedRectangle(cornerRadius: ContentUI.Layout.buttonCornerRadius))
                         .shadow(
-                            color: .orange.opacity(0.4),
+                            color: .orange.opacity(ContentUI.Layout.buttonShadowOpacity),
                             radius: ContentUI.Layout.shadowRadius,
                             y: ContentUI.Layout.shadowYOffset
                         )
@@ -145,33 +112,33 @@ struct ContentView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink(destination: SettingsView()) {
                             Image(systemName: "gearshape")
-                                .font(.system(size: 18, weight: .semibold))
-                                .padding(10)
+                                .font(.system(size: ContentUI.Layout.settingsIconSize, weight: .semibold))
+                                .padding(ContentUI.Layout.settingsIconPadding)
                         }
                     }
                 }
             }
         }
     }
-    private var bubbleBackground: some View {
+    private var mainBackground: some View {
         ZStack {
             Circle()
-                .fill(Color.blue.opacity(0.25))
-                .frame(width: 300, height: 300)
-                .blur(radius: 80)
-                .offset(x: -120, y: -300)
+                .fill(Color.blue.opacity(ContentUI.Layout.bgBlueOpacity))
+                .frame(width: ContentUI.Layout.bgCircleLargeSize, height: ContentUI.Layout.bgCircleLargeSize)
+                .blur(radius: ContentUI.Layout.bgBlurLarge)
+                .offset(x: ContentUI.Layout.bgLargeOffsetX, y: ContentUI.Layout.bgLargeOffsetY)
             
             Circle()
-                .fill(Color.purple.opacity(0.2))
-                .frame(width: 250, height: 250)
-                .blur(radius: 70)
-                .offset(x: 130, y: -100)
+                .fill(Color.purple.opacity(ContentUI.Layout.bgPurpleOpacity))
+                .frame(width: ContentUI.Layout.bgCircleMediumSize, height: ContentUI.Layout.bgCircleMediumSize)
+                .blur(radius: ContentUI.Layout.bgBlurMedium)
+                .offset(x: ContentUI.Layout.bgMediumOffsetX, y: ContentUI.Layout.bgMediumOffsetY)
             
             Circle()
-                .fill(Color.pink.opacity(0.15))
-                .frame(width: 200, height: 200)
-                .blur(radius: 60)
-                .offset(x: -80, y: 300)
+                .fill(Color.pink.opacity(ContentUI.Layout.bgPinkOpacity))
+                .frame(width: ContentUI.Layout.bgCircleSmallSize, height: ContentUI.Layout.bgCircleSmallSize)
+                .blur(radius: ContentUI.Layout.bgBlurSmall)
+                .offset(x: ContentUI.Layout.bgSmallOffsetX, y: ContentUI.Layout.bgSmallOffsetY)
         }
         .ignoresSafeArea()
     }
