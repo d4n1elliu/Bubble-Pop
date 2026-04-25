@@ -8,20 +8,25 @@
 import Foundation
 import Observation
 
-/// A centralised data model to manage player information across different screens.
-/// Using @Observable to allow SwiftUI to view and update automatically when the name changes.
 @Observable
 class PlayerData {
-    /// Name entered by the player before starting the game.
-    var name: String = ""
     
-    /// Current score achieved during the game session.
-    var currentScore: Int = 0
+    private struct Config {
+        static let defaultName: String = ""
+        static let defaultScore: Int = 0
+    }
     
-    var scoreManager = ScoreManager()
+    var name: String
+    var currentScore : Int
+    var scoreManager: ScoreManager
     
-    /// Resets the game state for a new session.
+    init(name: String = Config.defaultName, currentScore: Int = Config.defaultScore, scoreManager: ScoreManager = ScoreManager()) {
+        self.name = name
+        self.currentScore = currentScore
+        self.scoreManager = scoreManager
+    }
+    
     func resetGame() {
-        currentScore = 0
+        currentScore = Config.defaultScore
     }
 }
