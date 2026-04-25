@@ -76,38 +76,48 @@ struct BubbleCreation {
     ///   - cursorPosition: Optional cursor position to prevent bubbles from spawning on top of cursor
     private static func randomPosition(in scene: GameScene, avoiding cursorPosition: CGPoint?) -> CGPoint {
         let bubbleRadius = PhysicsConstants.bubbleRadius
+        let bubbleMinimumSpacing = bubbleRadius * PhysicsConstants.bubbleMinimumSpacingMultiplier
         var candidatePosition = CGPoint.zero
         
         for _ in 0..<PhysicsConstants.spawnMaxAttempts {
             let randomX = CGFloat.random(in: bubbleRadius...(scene.size.width - bubbleRadius))
             let randomY = CGFloat.random(in: bubbleRadius...(scene.size.height - bubbleRadius))
             candidatePosition = CGPoint(x: randomX, y: randomY)
-            guard let cursor = cursorPosition else { break }
-            let distanceFromCursor = hypot(randomX - cursor.x, randomY - cursor.y)
-            if distanceFromCursor > PhysicsConstants.bubbleCursorClearance { break }
-        }
-        return candidatePosition
+            
+            if let cursor = cursorPosition {
+                let distanceFromCursor = hypot(randomX - cursor.x, randomY - cursor.y)
+                if distanceFromCursor > PhysicsConstants.bubbleCursorClearance { break }
+            }
+            let overlapsExistingBubble = scene.children
+                .filter { $0.name == PhysicsConstants.bubbleName }
+                .contains { existingBubble in
+                    hypot(candidatePosition.x - existingBubble.position.x,
+                          candidatePosition.y - existingBubble.position.y) < bubbleMinimumSpacing
+                }
+            if !overlapsExistingBubble { return candidatePosition }
     }
+    return candidatePosition
+}
+
+/// - Parameters:
+///   - type: The BubbleConfig case to define bubble color, points and spawn probability
+///   - position: The exact spawn coordinates to place the bubble node at
+private static func makeBubbleNode(type: BubbleConfig, at position: CGPoint) -> SKShapeNode {
+    let node = SKShapeNode(circleOfRadius: PhysicsConstants.bubbleRadius)
+    node.name = PhysicsConstants.bubbleName
+    node.fillColor = type.bubbleColor
+    node.strokeColor = SKColor(white: PhysicsConstants.bubbleStrokeWhite, alpha: PhysicsConstants.bubbleStrokeOpacity)
+    node.lineWidth = PhysicsConstants.bubbleStrokeWidth
+    node.position = position
+    node.userData = ["points": type.bubblePoints, "color": type.bubbleColor]
     
-    /// - Parameters:
-    ///   - type: The BubbleConfig case to define bubble color, points and spawn probability
-    ///   - position: The exact spawn coordinates to place the bubble node at
-    private static func makeBubbleNode(type: BubbleConfig, at position: CGPoint) -> SKShapeNode {
-        let node = SKShapeNode(circleOfRadius: PhysicsConstants.bubbleRadius)
-        node.name = PhysicsConstants.bubbleName
-        node.fillColor = type.bubbleColor
-        node.strokeColor = SKColor(white: PhysicsConstants.bubbleStrokeWhite, alpha: PhysicsConstants.bubbleStrokeOpacity)
-        node.lineWidth = PhysicsConstants.bubbleStrokeWidth
-        node.position = position
-        node.userData = ["points": type.bubblePoints, "color": type.bubbleColor]
-        
-        let physics = SKPhysicsBody(circleOfRadius: PhysicsConstants.bubbleRadius)
-        physics.restitution = PhysicsConstants.bubbleBounciness
-        physics.friction = PhysicsConstants.bubbleFriction
-        physics.linearDamping = PhysicsConstants.bubbleDamping
-        physics.allowsRotation = false
-        node.physicsBody = physics
-        
-        return node
-    }
+    let physics = SKPhysicsBody(circleOfRadius: PhysicsConstants.bubbleRadius)
+    physics.restitution = PhysicsConstants.bubbleBounciness
+    physics.friction = PhysicsConstants.bubbleFriction
+    physics.linearDamping = PhysicsConstants.bubbleDamping
+    physics.allowsRotation = false
+    node.physicsBody = physics
+    
+    return node
+}
 }

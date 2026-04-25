@@ -22,4 +22,5 @@ enum PhysicsConstants {
     static let bubbleStrokeWhite: CGFloat = 0.0
     static let spawnMaxAttempts: Int = 50
     static let bubbleDiameterDivisor: CGFloat = 2
+    static let bubbleMinimumSpacingMultiplier: CGFloat = 2
 }

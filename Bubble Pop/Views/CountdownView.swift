@@ -45,11 +45,11 @@ struct CountdownOverlayView: View {
                         .foregroundColor(.white)
                         .shadow(color: .black.opacity(CountdownUI.flashHintShadowOpacity), radius: CountdownUI.flashHintShadowRadius)
                     VStack(spacing: CountdownUI.pointRowVSpacing) {
-                        pointRow(label: "Red",   points: "1 pt",   color: CountdownUI.redBubbleColor)
-                        pointRow(label: "Pink",  points: "2 pts",  color: CountdownUI.pinkBubbleColor)
-                        pointRow(label: "Green", points: "5 pts",  color: CountdownUI.greenBubbleColor)
-                        pointRow(label: "Blue",  points: "8 pts",  color: CountdownUI.blueBubbleColor)
-                        pointRow(label: "Black", points: "10 pts", color: CountdownUI.blackBubbleColor)
+                        pointRow(label: "Red",   points: "1 point",   color: CountdownUI.redBubbleColor)
+                        pointRow(label: "Pink",  points: "2 points",  color: CountdownUI.pinkBubbleColor)
+                        pointRow(label: "Green", points: "5 points",  color: CountdownUI.greenBubbleColor)
+                        pointRow(label: "Blue",  points: "8 points",  color: CountdownUI.blueBubbleColor)
+                        pointRow(label: "Black", points: "10 points", color: CountdownUI.blackBubbleColor)
                     }
                     .padding(.vertical, CountdownUI.pointRowVerticalPadding)
                     .padding(.horizontal, CountdownUI.pointRowHorizontalPadding)
