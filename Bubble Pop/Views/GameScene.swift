@@ -18,7 +18,7 @@ class GameScene: SKScene {
     private var lastKnownBubblePositions: [SKNode: CGPoint] = [:]
     private var stuckBubbleFrameCounts: [SKNode: Int] = [:]
     private var lastPoppedBubbleColor: UIColor?
-    private var consecutiveComboCount: Int = 0
+    private var consecutiveComboCount: Int = GameControllerConfig.initialComboCount
     
     override func didMove(to view: SKView) {
         setupPhysics()
@@ -58,7 +58,7 @@ class GameScene: SKScene {
             lastKnownBubblePositions.removeValue(forKey: tappedNode)
             stuckBubbleFrameCounts.removeValue(forKey: tappedNode)
             run(SKAction.playSoundFileNamed(GameControllerConfig.popSoundFile, waitForCompletion: false))
-            spawnPopParticles(at: tappedNode.position, color: bubbleColor, radius: tappedNode.frame.width / 2)
+            spawnPopParticles(at: tappedNode.position, color: bubbleColor, radius: tappedNode.frame.width / PhysicsConstants.bubbleDiameterDivisor)
             let popSequence = SKAction.sequence([
                 SKAction.scale(to: GameControllerConfig.popScaleTo, duration: GameControllerConfig.popScaleDuration),
                 SKAction.fadeOut(withDuration: GameControllerConfig.popFadeDuration),
@@ -77,7 +77,7 @@ class GameScene: SKScene {
         if let last = lastPoppedBubbleColor, last == color {
             consecutiveComboCount += 1
         } else {
-            consecutiveComboCount = 1
+            consecutiveComboCount = GameControllerConfig.firstComboCount
         }
         lastPoppedBubbleColor = color
         guard consecutiveComboCount >= GameControllerConfig.comboMinCount else { return }
@@ -91,7 +91,7 @@ class GameScene: SKScene {
         addChild(label)
         label.run(SKAction.sequence([
             SKAction.group([
-                SKAction.moveBy(x: 0, y: GameControllerConfig.comboLabelMoveY, duration: GameControllerConfig.comboLabelAnimDuration),
+                SKAction.moveBy(x: GameControllerConfig.comboLabelMoveX, y: GameControllerConfig.comboLabelMoveY, duration: GameControllerConfig.comboLabelAnimDuration),
                 SKAction.fadeOut(withDuration: GameControllerConfig.comboLabelAnimDuration)
             ]),
             SKAction.removeFromParent()
@@ -147,7 +147,7 @@ class GameScene: SKScene {
     private func maintainBubbleScreenBoundaries() {
         guard size.width > 0, size.height > 0 else { return }
         for node in children where node.name == PhysicsConstants.bubbleName {
-            let radius = node.frame.width / 2
+            let radius = node.frame.width / PhysicsConstants.bubbleDiameterDivisor
             let clampedX = node.position.x.clamped(to: radius...(size.width - radius))
             let clampedY = node.position.y.clamped(to: radius...(size.height - radius))
             if node.position.x != clampedX || node.position.y != clampedY {
@@ -166,12 +166,12 @@ class GameScene: SKScene {
                 let hasMoved = abs(currentPosition.x - lastKnownPosition.x) >= minimumMovementThreshold
                         || abs(currentPosition.y - lastKnownPosition.y) >= minimumMovementThreshold
                 if hasMoved {
-                    stuckBubbleFrameCounts[node] = 0
+                    stuckBubbleFrameCounts[node] = GameControllerConfig.resetFrameCount
                 } else {
-                    stuckBubbleFrameCounts[node, default: 0] += 1
-                    if stuckBubbleFrameCounts[node, default: 0] >= stuckFrameThreshold {
+                    stuckBubbleFrameCounts[node, default: GameControllerConfig.resetFrameCount] += 1
+                    if stuckBubbleFrameCounts[node, default: GameControllerConfig.resetFrameCount] >= stuckFrameThreshold {
                         nudgeStuckBubble(node)
-                        stuckBubbleFrameCounts[node] = 0
+                        stuckBubbleFrameCounts[node] = GameControllerConfig.resetFrameCount
                     }
                 }
             }
@@ -211,7 +211,7 @@ class GameScene: SKScene {
             verticalDirection = -abs(verticalDirection)
         }
         let magnitude = sqrt(horizontalDirection * horizontalDirection + verticalDirection * verticalDirection)
-        if magnitude > 0 {
+        if magnitude > GameControllerConfig.minimumMagnitude {
             horizontalDirection /= magnitude
             verticalDirection /= magnitude
         }
@@ -228,7 +228,7 @@ class GameScene: SKScene {
         lastKnownBubblePositions.removeAll()
         stuckBubbleFrameCounts.removeAll()
         lastPoppedBubbleColor = nil
-        consecutiveComboCount = 0
+        consecutiveComboCount = GameControllerConfig.initialComboCount
         self.isPaused = false
         self.physicsWorld.speed = PhysicsConstants.physicsSpeed
         setupPhysics()
@@ -240,7 +240,7 @@ class GameScene: SKScene {
         lastKnownBubblePositions.removeAll()
         stuckBubbleFrameCounts.removeAll()
         lastPoppedBubbleColor = nil
-        consecutiveComboCount = 0
+        consecutiveComboCount = GameControllerConfig.initialComboCount
         self.isPaused = false
         self.physicsWorld.speed = PhysicsConstants.physicsSpeed
         setupPhysics()

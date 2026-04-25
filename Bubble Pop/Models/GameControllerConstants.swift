@@ -45,6 +45,7 @@ enum GameControllerConfig {
     static let popScaleDuration: Double = 0.08
     static let popFadeDuration: Double = 0.12
     static let comboLabelFontSize: CGFloat = 28
+    static let comboLabelMoveX: CGFloat = 0
     static let comboLabelMoveY: CGFloat = 60
     static let comboLabelAnimDuration: Double = 0.6
     static let comboMinCount: Int = 2
@@ -56,4 +57,8 @@ enum GameControllerConfig {
     static let particleInitialAlpha: CGFloat = 1.0
     static let nudgeDirectionRange: ClosedRange<CGFloat> = -1.0...1.0
     static let fullCircleRadians: CGFloat = .pi * 2
+    static let initialComboCount: Int = 0
+    static let firstComboCount: Int = 1
+    static let resetFrameCount: Int = 0
+    static let minimumMagnitude: CGFloat = 0
 }

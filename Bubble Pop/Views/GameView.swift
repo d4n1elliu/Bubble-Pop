@@ -8,25 +8,6 @@
 import SwiftUI
 import SpriteKit
 
-enum GameViewUI {
-    static let hudFontSize: CGFloat = 20
-    static let hudValueFontSize: CGFloat = 25
-    static let overlayOpacity: Double = 0.4
-    static let gameOverFontSize: CGFloat = 32
-    static let scoreFontSize: CGFloat = 70
-    static let overlaySpacing: CGFloat = 30
-    static let overlayInnerSpacing: CGFloat = 10
-    static let scoreSpacing: CGFloat = 4
-    static let buttonSpacing: CGFloat = 12
-    static let buttonPadding: CGFloat = 16
-    static let overlayPadding: CGFloat = 35
-    static let overlayCornerRadius: CGFloat = 35
-    static let overlayHorizontalPadding: CGFloat = 40
-    static let trackingSpacing: CGFloat = 2
-    static let statColumnSpacing: CGFloat = 6
-}
-
-/// The root view for the bubble-popping game, bridging SpriteKit and SwiftUI.
 struct GameView: View {
     let playerName: String
     @Environment(\.dismiss) private var dismiss
@@ -37,10 +18,10 @@ struct GameView: View {
     @State private var showScoreBoard = false
     @State private var viewModel: GameViewModel?
     @State private var isCountingDown = true
-    @State private var countdownValue: Int = 0
+    @State private var countdownValue: Int = GameViewUI.initialCountdownValue
     
-    @AppStorage("gameTimeframe") private var timeframe = 60
-    @AppStorage("maxBubbles") private var maximumBubbles = 15
+    @AppStorage("gameTimeframe") private var timeframe = GameControllerConfig.initialPlayTime
+    @AppStorage("maxBubbles") private var maximumBubbles = GameControllerConfig.maxBubbles
     
     @State private var gameScene: GameScene = {
         let scene = GameScene()
@@ -50,10 +31,9 @@ struct GameView: View {
     }()
     
     var body: some View {
-        VStack(spacing: 0) {
-            /// HUD
+        VStack(spacing: GameViewUI.rootVStackSpacing) {
             HStack {
-                statColumn(title: "Time Left", value: "\(viewModel?.remainingPlayTime ?? timeframe)", color: (viewModel?.remainingPlayTime ?? timeframe) <= 10 ? .red : .primary)
+                statColumn(title: "Time Left", value: "\(viewModel?.remainingPlayTime ?? timeframe)", color: (viewModel?.remainingPlayTime ?? timeframe) <= GameViewUI.timeWarningThreshold ? .red : .primary)
                     .frame(maxWidth: .infinity)
                 statColumn(title: "Score", value: "\(playerData.currentScore)")
                     .frame(maxWidth: .infinity)
@@ -63,16 +43,13 @@ struct GameView: View {
             .padding()
             .background(.ultraThinMaterial)
             
-            /// Game Layer
             GeometryReader { geo in
                 ZStack {
-                    
-                    /// Gradient background matching onboarding aesthetic
                     LinearGradient(
                         stops: [
-                            .init(color: Color(red: 0.87, green: 0.85, blue: 0.75), location: 0.0),
-                            .init(color: Color(red: 0.50, green: 0.72, blue: 0.78), location: 0.5),
-                            .init(color: Color(red: 0.45, green: 0.34, blue: 0.67), location: 1.0)
+                            Gradient.Stop(color: GameViewUI.gradientStopOne, location: GameViewUI.gradientLocationOne),
+                            Gradient.Stop(color: GameViewUI.gradientStopTwo, location: GameViewUI.gradientLocationTwo),
+                            Gradient.Stop(color: GameViewUI.gradientStopThree, location: GameViewUI.gradientLocationThree),
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -87,7 +64,6 @@ struct GameView: View {
                         .onChange(of: geo.size) { _, newSize in
                             gameScene.size = newSize
                         }
-                    
                     if isCountingDown {
                         CountdownOverlayView {
                             withAnimation { isCountingDown = false }
@@ -111,11 +87,14 @@ struct GameView: View {
             .environment(scoreManager)
         }
     }
-    
+    /// - Parameters:
+    ///   - title: The label displayed above the value
+    ///   - value: The current stat value to display
+    ///   - color: The colour applied to the value text
     private func statColumn(title: String, value: String, color: Color = .primary) -> some View {
-        VStack(spacing: 6) {
-            Text(title).font(.system(size: 20, weight: .semibold))
-            Text(value).font(.system(size: 25, weight: .medium, design: .monospaced)).foregroundColor(color)
+        VStack(spacing: GameViewUI.statColumnSpacing) {
+            Text(title).font(.system(size: GameViewUI.hudFontSize, weight: .semibold))
+            Text(value).font(.system(size: GameViewUI.hudValueFontSize, weight: .medium, design: .monospaced)).foregroundColor(color)
         }
     }
     
@@ -123,15 +102,11 @@ struct GameView: View {
         if viewModel == nil {
             viewModel = GameViewModel(player: playerData, scoreManager: scoreManager)
         }
-        
         guard let gc = viewModel else { return }
-        
         gc.configure(time: timeframe, maxBubbles: maximumBubbles, scene: gameScene)
-        
         gameScene.isPaused = false
         showReturnButton = false
         gameScene.playerName = playerName
-        
         gameScene.onReturnHome = {
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
@@ -144,50 +119,54 @@ struct GameView: View {
     
     private var endGameOverlay: some View {
         ZStack {
-            Color.black.opacity(0.4).ignoresSafeArea().transition(.opacity)
+            Color.black.opacity(GameViewUI.overlayOpacity).ignoresSafeArea().transition(.opacity)
             
-            VStack(spacing: 30) {
-                VStack(spacing: 10) {
-                    Text(viewModel?.remainingPlayTime ?? 0 <= 0 ? "TIME'S UP!" : "GAME OVER")
-                        .font(.system(size: 32, weight: .black, design: .rounded))
+            VStack(spacing: GameViewUI.overlaySpacing) {
+                VStack(spacing: GameViewUI.overlayInnerSpacing) {
+                    Text(viewModel?.remainingPlayTime ?? GameViewUI.defaultRemainingTime <= GameViewUI.defaultRemainingTime ? "TIME'S UP!" : "GAME OVER")
+                        .font(.system(size: GameViewUI.gameOverFontSize, weight: .black, design: .rounded))
                     Text(playerName.uppercased())
                         .font(.headline).foregroundColor(.secondary)
                 }
                 
-                VStack(spacing: 4) {
-                    Text("FINAL SCORE").font(.caption).bold().tracking(2)
-                    Text("\(playerData.currentScore)").font(.system(size: 70, weight: .black, design: .rounded))
+                VStack(spacing: GameViewUI.scoreSpacing) {
+                    Text("FINAL SCORE").font(.caption).bold().tracking(GameViewUI.trackingSpacing)
+                    Text("\(playerData.currentScore)").font(.system(size: GameViewUI.scoreFontSize, weight: .black, design: .rounded))
                 }
                 
-                VStack(spacing: 12) {
+                VStack(spacing: GameViewUI.buttonSpacing) {
                     buttonCapsule("Restart Game", color: .blue) {
-                        playerData.currentScore = 0
+                        playerData.currentScore = GameViewUI.resetScore
                         showReturnButton = false
-                        countdownValue += 1
+                        countdownValue += GameViewUI.countdownIncrement
                         isCountingDown = true
                         gameScene.prepareToRestartSession()
                     }
                     buttonCapsule("Scoreboard", color: .orange) {
                         showScoreBoard = true
                     }
-                    buttonCapsule("Main Menu", color: .gray.opacity(0.2), textColor: .primary) {
-                        playerData.currentScore = 0
+                    buttonCapsule("Main Menu", color: .gray.opacity(GameViewUI.mainMenuOpacity), textColor: .primary) {
+                        playerData.currentScore = GameViewUI.initialCurrentScore
                         dismiss()
                     }
                 }
             }
-            .padding(35)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 35))
-            .padding(.horizontal, 40)
+            .padding(GameViewUI.overlayPadding)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: GameViewUI.overlayCornerRadius))
+            .padding(.horizontal, GameViewUI.overlayHorizontalPadding)
         }
     }
-    
+    /// - Parameters:
+    ///   - text: The button label text
+    ///   - color: The background colour of the button
+    ///   - textColor: The foreground colour of the button label
+    ///   - action: The closure to execute when the button is tapped
     private func buttonCapsule(_ text: String, color: Color, textColor: Color = .white, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(text)
                 .font(.headline)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
+                .padding(.vertical, GameViewUI.buttonPadding)
                 .background(color)
                 .foregroundColor(textColor)
                 .clipShape(Capsule())
