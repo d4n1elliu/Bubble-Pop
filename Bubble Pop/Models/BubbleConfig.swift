@@ -18,6 +18,9 @@ enum PhysicsConstants {
     static let bubbleImpulseRange: ClosedRange<CGFloat> = -15.0...15.0
     static let bubbleCursorClearance: CGFloat = 100.0
     static let bubbleStrokeWidth: CGFloat = 2.5
+    static let bubbleStrokeOpacity: CGFloat = 0.25
+    static let bubbleStrokeWhite: CGFloat = 0.0
+    static let spawnMaxAttempts: Int = 50
 }
 
 enum GameControllerConfig {
@@ -75,11 +78,11 @@ struct BubbleCreation {
         scene.addChild(bubbleNode)
         scene.controller?.bubblesSpawned += 1
         
-        let randomLaunchImpluse = CGVector(
+        let randomLaunchImpulse = CGVector(
             dx: CGFloat.random(in: PhysicsConstants.bubbleImpulseRange),
             dy: CGFloat.random(in: PhysicsConstants.bubbleImpulseRange)
         )
-        bubbleNode.physicsBody?.applyImpulse(randomLaunchImpluse)
+        bubbleNode.physicsBody?.applyImpulse(randomLaunchImpulse)
         return bubbleNode
     }
 
@@ -101,7 +104,7 @@ struct BubbleCreation {
         let bubbleRadius = PhysicsConstants.bubbleRadius
         var candidatePosition = CGPoint.zero
         
-        for _ in 0..<50 {
+        for _ in 0..<PhysicsConstants.spawnMaxAttempts {
             let randomX = CGFloat.random(in: bubbleRadius...(scene.size.width - bubbleRadius))
             let randomY = CGFloat.random(in: bubbleRadius...(scene.size.height - bubbleRadius))
             candidatePosition = CGPoint(x: randomX, y: randomY)
@@ -114,12 +117,12 @@ struct BubbleCreation {
     
     /// - Parameters:
     ///   - type: The BubbleConfig case to define bubble color, points and spawn probability
-    ///   - position: The exact spawn coordinates to place the bubble node at 
+    ///   - position: The exact spawn coordinates to place the bubble node at
     private static func makeBubbleNode(type: BubbleConfig, at position: CGPoint) -> SKShapeNode {
         let node = SKShapeNode(circleOfRadius: PhysicsConstants.bubbleRadius)
         node.name = PhysicsConstants.bubbleName
         node.fillColor = type.bubbleColor
-        node.strokeColor = SKColor(white: 0.0, alpha: 0.25)
+        node.strokeColor = SKColor(white: PhysicsConstants.bubbleStrokeWhite, alpha: PhysicsConstants.bubbleStrokeOpacity)
         node.lineWidth = PhysicsConstants.bubbleStrokeWidth
         node.position = position
         node.userData = ["points": type.bubblePoints, "color": type.bubbleColor]
