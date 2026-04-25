@@ -16,7 +16,6 @@ struct HighScoreView: View {
             bubbleBackground
             
             VStack(spacing: 0) {
-                /// Custom gradient title matching ContentView style
                 Text("Leaderboard")
                     .font(.system(size: 50, weight: .black, design: .rounded))
                     .foregroundStyle(
@@ -67,7 +66,6 @@ struct HighScoreView: View {
                                 
                                 Spacer()
                                 
-                                /// Score badge
                                 Text("\(entry.score) pts")
                                     .font(.subheadline.monospacedDigit())
                                     .fontWeight(.semibold)
@@ -103,8 +101,7 @@ struct HighScoreView: View {
                     .foregroundColor(.secondary)
                 }
             }
-            
-            /// Clear button on the right
+    
             ToolbarItem(placement: .topBarTrailing) {
                 Button(role: .destructive) {
                     scoreManager.resetLeaderboard()
@@ -121,7 +118,6 @@ struct HighScoreView: View {
         }
     }
     
-    /// Matching decorative background from ContentView.
     private var bubbleBackground: some View {
         ZStack {
             Circle()

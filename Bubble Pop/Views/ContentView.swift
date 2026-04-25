@@ -58,8 +58,7 @@ struct ContentView: View {
                 bubbleBackground
                 VStack(spacing: ContentUI.Spacing.rootVStackSpacing) {
                     Spacer().frame(height: 5)
-                    
-                    /// Game title
+                
                     Text("Bubble Pop")
                         .font(.system(size: ContentUI.FontSize.titleSize, weight: .black, design: .rounded))
                         .foregroundStyle(
@@ -72,7 +71,6 @@ struct ContentView: View {
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
                     
-                    /// Enter player name inputs
                     VStack(spacing: ContentUI.Spacing.labelToField) {
                         Text("PLAYER NAME")
                             .font(.system(size: ContentUI.FontSize.labelSize, weight: .bold, design: .rounded))
@@ -89,7 +87,6 @@ struct ContentView: View {
                             .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
                     }
                     
-                    /// Start game button
                     NavigationLink(destination: GameView(playerName: playerName)) {
                         HStack(spacing: 8) {
                             Image(systemName: "play.fill")
@@ -114,7 +111,6 @@ struct ContentView: View {
                     .padding(.horizontal, ContentUI.Spacing.horizontalPadding)
                     .disabled(!isNameValid)
                     
-                    /// High Score button
                     NavigationLink(destination: HighScoreView()) {
                         HStack(spacing: 8) {
                             Image(systemName: "trophy.fill")
@@ -143,7 +139,6 @@ struct ContentView: View {
                     Spacer()
                 }
                 .padding(ContentUI.Spacing.standardPadding)
-                /// Navigation modifiers belong inside the stack on the main view
                 .toolbar(.visible, for: .navigationBar)
                 .toolbarBackground(.hidden, for: .navigationBar)
                 .toolbar {
@@ -158,7 +153,6 @@ struct ContentView: View {
             }
         }
     }
-    /// Decorative blurred bubble circles in the background.
     private var bubbleBackground: some View {
         ZStack {
             Circle()

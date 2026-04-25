@@ -25,7 +25,6 @@ struct SettingsView: View {
                                 .foregroundColor(.secondary)
                                 .bold()
                         }
-                        /// Implemented a simple Double binding for the Slider
                         Slider(value: Binding(
                             get: { Double(timeframe) },
                             set: { timeframe = Int($0) }
@@ -74,8 +73,6 @@ struct SettingsView: View {
     }
 }
 
-// Fixed Preview: Since timeframe and bubbles are @AppStorage,
-// they are no longer passed in the initializer.
 #Preview {
     SettingsView()
 }
