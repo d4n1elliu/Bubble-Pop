@@ -31,6 +31,13 @@ enum GameControllerConfig {
     static let initialSpawnCount: Int = 0
     static let physicsCleanupDelay: Double = 0.15
     static let bubbleNodeName = "Bubbles"
+    static let unknownPlayerName: String = "Unknown"
+    static let comboMultiplier: Double = 1.5
+    static let initialSpawnDelay: Double = 0.2
+    static let bubbleFadeInDuration: Double = 0.3
+    static let bubbleFadeOutDuration: Double = 0.25
+    static let minBubbleRemoval: Int = 1
+    static let maxBubbleRemoval: Int = 3
 }
 
 enum BubbleConfig: CaseIterable {
@@ -38,30 +45,30 @@ enum BubbleConfig: CaseIterable {
     
     var bubblePoints: Int {
         switch self {
-            case .red:   return 1
-            case .pink:  return 2
-            case .green: return 5
-            case .blue:  return 8
-            case .black: return 10
+        case .red:   return 1
+        case .pink:  return 2
+        case .green: return 5
+        case .blue:  return 8
+        case .black: return 10
         }
     }
     var bubbleSpawnProbability: Int {
         switch self {
-            case .red:   return 40
-            case .pink:  return 30
-            case .green: return 15
-            case .blue:  return 10
-            case .black: return 5
+        case .red:   return 40
+        case .pink:  return 30
+        case .green: return 15
+        case .blue:  return 10
+        case .black: return 5
         }
     }
     
     var bubbleColor: UIColor {
         switch self {
-            case .red:   return .red
-            case .pink:  return .systemPink
-            case .green: return .green
-            case .blue:  return .systemBlue
-            case .black: return .black
+        case .red:   return .red
+        case .pink:  return .systemPink
+        case .green: return .green
+        case .blue:  return .systemBlue
+        case .black: return .black
         }
     }
 }
@@ -85,7 +92,7 @@ struct BubbleCreation {
         bubbleNode.physicsBody?.applyImpulse(randomLaunchImpulse)
         return bubbleNode
     }
-
+    
     private static func randomBubbleType() -> BubbleConfig {
         let totalProbabilityWeight = BubbleConfig.allCases.reduce(0) { $0 + $1.bubbleSpawnProbability }
         let randomRoll = Int.random(in: 1...totalProbabilityWeight)
