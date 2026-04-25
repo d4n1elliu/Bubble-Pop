@@ -14,24 +14,39 @@ struct GameScore: Identifiable, Codable {
 }
 
 @Observable
-
 class LeaderboardManager {
 
     private struct Config {
         static let storageKey = "leaderboard_data"
-        static let maxEntries = 10
+        static let maxEntries: Int = 10
+        static let minNameLength: Int = 1
+    }
+    
+    enum LeaderboardError: LocalizedError {
+        case encodingFailed(Error)
+        case decodingFailed(Error)
+        
+        var errorDescription: String? {
+            switch self {
+            case .encodingFailed(let error):
+                return "Failed to save scores. Please try again.\n\nDetails: \(error.localizedDescription)"
+            case .decodingFailed(let error):
+                return "Failed to load leaderboard data. Please try again.\n\nDetails: \(error.localizedDescription)"
+            }
+        }
     }
     
     var scores: [GameScore] = [] {
-        didSet {
-            saveScores()
-        }
+        didSet { saveScores() }
     }
     
     var failedMessage: Bool = false
     var alertMessage: String = ""
+    
+    private let storage: UserDefaults
 
-    init() {
+    init(storage: UserDefaults = .standard) {
+        self.storage = storage
         loadScores()
     }
     
@@ -39,21 +54,20 @@ class LeaderboardManager {
         scores.map { $0.score }.max() ?? 0
     }
     
-    // Adds a new score to the list, sorts it and enforces the leaderboard limit.
+    /// - Parameters:
+    ///   - name: The player's name used to identify and match against existing leaderboard entries
+    ///   - value: The new score to record, only saved if it exceeds the user's current best score
     func addScore(name: String, value: Int) {
-        if let index = scores.firstIndex(where: {
+        if let existingIndex = scores.firstIndex(where: {
             $0.playerName.lowercased() == name.lowercased()
         }) {
-            if value > scores[index].score {
-                scores[index] = GameScore(playerName: name, score: value)
+            if value > scores[existingIndex].score {
+                scores[existingIndex] = GameScore(playerName: name, score: value)
             }
         } else {
-            let newEntry = GameScore(playerName: name, score: value)
-            scores.append(newEntry)
+            scores.append(GameScore(playerName: name, score: value))
         }
-        scores.sort {
-            $0.score > $1.score
-        }
+        scores.sort { $0.score > $1.score }
         if scores.count > Config.maxEntries {
             scores = Array(scores.prefix(Config.maxEntries))
         }
@@ -61,33 +75,32 @@ class LeaderboardManager {
     
     func clearScores() {
         scores = []
-        UserDefaults.standard.removeObject(forKey: Config.storageKey)
+        storage.removeObject(forKey: Config.storageKey)
     }
     
-    // Converts the current leaderboard array into a data format and saves it to permanent storage.
+    private func handleError(_ error: LeaderboardError) {
+        alertMessage = error.errorDescription ?? "An unexpected error occurred."
+        failedMessage = true
+    }
+    
     private func saveScores() {
         do {
             let encoded = try JSONEncoder().encode(scores)
-            UserDefaults.standard.set(encoded, forKey: Config.storageKey)
+            storage.set(encoded, forKey: Config.storageKey)
         } catch {
-            alertMessage = "Failed to save scores. Please try again.\n\nDetails: \(error.localizedDescription)"
-            failedMessage = true
+            handleError(.encodingFailed(error))
         }
     }
-    
-    // Attempts to retrieve and decode previously saved leaderboard data from storage.
+
     private func loadScores() {
-        guard let data = UserDefaults.standard.data(forKey: Config.storageKey) else {
-            return
-        }
+        guard let data = storage.data(forKey: Config.storageKey) else { return }
         do {
             let decoded = try JSONDecoder().decode([GameScore].self, from: data)
             scores = decoded.filter {
-                !$0.playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                $0.playerName.trimmingCharacters(in: .whitespacesAndNewlines).count >= Config.minNameLength
             }
         } catch {
-            alertMessage = "Failed to load leaderboard data. Please try again. \n\nDetails: \(error.localizedDescription)"
-            failedMessage = true
+            handleError(.decodingFailed(error))
         }
     }
 }
