@@ -15,31 +15,26 @@ enum PhysicsConstants {
     static let bubbleFriction: CGFloat = 0.0
     static let bubbleDamping: CGFloat = 0.0
     static let physicsSpeed: CGFloat = 1.0
-    static let impulseRange: ClosedRange<CGFloat> = -15.0...15.0
+    static let bubbleImpulseRange: ClosedRange<CGFloat> = -15.0...15.0
+    static let bubbleCursorClearance: CGFloat = 100.0
+    static let bubbleStrokeWidth: CGFloat = 2.5
 }
 
 // Static configure for core game loop and spawning logic
 enum GameControllerConfig {
-
     static let initialPlayTime: Int = 60
     static let maxBubbles: Int = 15
     static let timerInterval: TimeInterval = 1.0
     static let initialScore: Int = 0
     static let initialSpawnCount: Int = 0
     static let physicsCleanupDelay: Double = 0.15
-    
-    /// Node name for identifying and filter bubble entities within the scene graphs
     static let bubbleNodeName = "Bubbles"
 }
 
-/// Defined the five bubble variants, each with a distinct point value, spawn probability and colour.
-/// Probability are relative weights which sums up to 100, making it unreadable as percentages
-/// High valued bubbles are assigned lower weights to perserve game balance
 enum BubbleConfig: CaseIterable {
     case red, pink, green, blue, black
     
-    /// Score awarded to player when this bubble type is popped.
-    var points: Int {
+    var bubblePoints: Int {
         switch self {
             case .red:   return 1
             case .pink:  return 2
@@ -48,8 +43,7 @@ enum BubbleConfig: CaseIterable {
             case .black: return 10
         }
     }
-    /// Spawn probability out of 100 percent, using random weighted selection to control how frequent each type appears.
-    var probability: Int {
+    var bubbleSpawnProbability: Int {
         switch self {
             case .red:   return 40
             case .pink:  return 30
@@ -59,8 +53,7 @@ enum BubbleConfig: CaseIterable {
         }
     }
     
-    /// Fill color of each bubble, needs to apply to bubble's SKShapeNode
-    var color: UIColor {
+    var bubbleColor: UIColor {
         switch self {
             case .red:   return .red
             case .pink:  return .systemPink
@@ -71,78 +64,65 @@ enum BubbleConfig: CaseIterable {
     }
 }
 
-/// Bubble static factory methods for constructing and spawn bubbles nodes.
 struct BubbleCreation {
-    
-    /// Spawns a single bubble with randomised type, position and impluse.
     @discardableResult
     static func spawnBubble(in scene: GameScene, avoiding cursorPosition: CGPoint? = nil) -> SKShapeNode {
-        let selectedType = randomBubbleType()
-        let position = randomPosition(in: scene, avoiding: cursorPosition)
-        
-        let bubble = makeBubbleNode(type: selectedType, at: position)
-        scene.addChild(bubble)
+        let bubbleType = randomBubbleType()
+        let bubbleSpawnPosition = randomPosition(in: scene, avoiding: cursorPosition)
+        let bubbleNode = makeBubbleNode(type: bubbleType, at: bubbleSpawnPosition)
+        scene.addChild(bubbleNode)
         scene.controller?.bubblesSpawned += 1
         
-        /// Apply an randomised impluse to give each bubble an unique starting direction and speed.
-        let randomImpulse = CGVector(
-            dx: CGFloat.random(in: PhysicsConstants.impulseRange),
-            dy: CGFloat.random(in: PhysicsConstants.impulseRange)
+        let randomLaunchImpluse = CGVector(
+            dx: CGFloat.random(in: PhysicsConstants.bubbleImpulseRange),
+            dy: CGFloat.random(in: PhysicsConstants.bubbleImpulseRange)
         )
-        bubble.physicsBody?.applyImpulse(randomImpulse)
-        
-        return bubble
+        bubbleNode.physicsBody?.applyImpulse(randomLaunchImpluse)
+        return bubbleNode
     }
-    
-    /// Select a bubble type using random weighted random sampling
-    /// A single random roll is compared against all cumlative probability thresholds, ensuring each type appearing with frequency by defining its probability weight.
+
     private static func randomBubbleType() -> BubbleConfig {
-        let totalWeight = BubbleConfig.allCases.reduce(0) { $0 + $1.probability }
-        let roll = Int.random(in: 1...totalWeight)
-        var cumulative = 0
-        for type in BubbleConfig.allCases {
-            cumulative += type.probability
-            if roll <= cumulative { return type }
+        let totalProbabilityWeight = BubbleConfig.allCases.reduce(0) { $0 + $1.bubbleSpawnProbability }
+        let randomRoll = Int.random(in: 1...totalProbabilityWeight)
+        var cumulativeProbability = 0
+        for bubbleType in BubbleConfig.allCases {
+            cumulativeProbability += bubbleType.bubbleSpawnProbability
+            if randomRoll <= cumulativeProbability { return bubbleType }
         }
         return .red
     }
     
-    /// Determing a valid spawn location within the scene bounds
-    /// Spawn location is 100 points away from the provided cursor position
     private static func randomPosition(in scene: GameScene, avoiding cursorPosition: CGPoint?) -> CGPoint {
-        let r = PhysicsConstants.bubbleRadius
-        var position = CGPoint.zero
+        let bubbleRadius = PhysicsConstants.bubbleRadius
+        var candidatePosition = CGPoint.zero
         
         for _ in 0..<50 {
-            let x = CGFloat.random(in: r...(scene.size.width - r))
-            let y = CGFloat.random(in: r...(scene.size.height - r))
-            position = CGPoint(x: x, y: y)
-            
-            /// Accept any position if no cursor, otherwise ensure 100pt clearance
+            let randomX = CGFloat.random(in: bubbleRadius...(scene.size.width - bubbleRadius))
+            let randomY = CGFloat.random(in: bubbleRadius...(scene.size.height - bubbleRadius))
+            candidatePosition = CGPoint(x: randomX, y: randomY)
             guard let cursor = cursorPosition else { break }
-            let distance = hypot(x - cursor.x, y - cursor.y)
-            if distance > 100 { break }
+            let distanceFromCursor = hypot(randomX - cursor.x, randomY - cursor.y)
+            if distanceFromCursor > PhysicsConstants.bubbleCursorClearance { break }
         }
-        return position
+        return candidatePosition
     }
     
-    /// Constructs a fully configured 
     private static func makeBubbleNode(type: BubbleConfig, at position: CGPoint) -> SKShapeNode {
-        let bubble = SKShapeNode(circleOfRadius: PhysicsConstants.bubbleRadius)
-        bubble.name = PhysicsConstants.bubbleName
-        bubble.fillColor = type.color
-        bubble.strokeColor = SKColor(white: 0.0, alpha: 0.25)
-        bubble.lineWidth = 2.5
-        bubble.position = position
-        bubble.userData = ["points": type.points, "color": type.color]
+        let node = SKShapeNode(circleOfRadius: PhysicsConstants.bubbleRadius)
+        node.name = PhysicsConstants.bubbleName
+        node.fillColor = type.bubbleColor
+        node.strokeColor = SKColor(white: 0.0, alpha: 0.25)
+        node.lineWidth = PhysicsConstants.bubbleStrokeWidth
+        node.position = position
+        node.userData = ["points": type.bubblePoints, "color": type.bubbleColor]
         
-        let body = SKPhysicsBody(circleOfRadius: PhysicsConstants.bubbleRadius)
-        body.restitution = PhysicsConstants.bubbleBounciness
-        body.friction = PhysicsConstants.bubbleFriction
-        body.linearDamping = PhysicsConstants.bubbleDamping
-        body.allowsRotation = false
-        bubble.physicsBody = body
+        let physics = SKPhysicsBody(circleOfRadius: PhysicsConstants.bubbleRadius)
+        physics.restitution = PhysicsConstants.bubbleBounciness
+        physics.friction = PhysicsConstants.bubbleFriction
+        physics.linearDamping = PhysicsConstants.bubbleDamping
+        physics.allowsRotation = false
+        node.physicsBody = physics
         
-        return bubble
+        return node
     }
 }
