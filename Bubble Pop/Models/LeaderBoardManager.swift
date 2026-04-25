@@ -40,7 +40,7 @@ class LeaderboardManager {
         didSet { saveScores() }
     }
     
-    var failedMessage: Bool = false
+    var showAlert: Bool = false
     var alertMessage: String = ""
     
     private let storage: UserDefaults
@@ -80,7 +80,7 @@ class LeaderboardManager {
     
     private func handleError(_ error: LeaderboardError) {
         alertMessage = error.errorDescription ?? "An unexpected error occurred."
-        failedMessage = true
+        showAlert = true
     }
     
     private func saveScores() {
