@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 enum ContentUI {
-    /// Padding Spacing Constants
     enum Spacing {
         static let rootVStackSpacing: CGFloat = 35
         static let labelToField: CGFloat = 12
@@ -17,27 +16,27 @@ enum ContentUI {
         static let standardPadding: CGFloat = 40
         static let settingsIconSpacing: CGFloat = 8
     }
-    /// Font Size Constants
     enum FontSize {
         static let titleSize: CGFloat = 80
         static let labelSize: CGFloat = 12
         static let inputNameSize: CGFloat = 18
         static let lettersTracking: CGFloat = 2
     }
-    /// Button Layout Constants
     enum Layout {
         static let inputFieldHeight: CGFloat = 55
         static let inputField: CGFloat = 15
         static let cornerRadius: CGFloat = 25
         static let buttonVerticalPadding: CGFloat = 18
-        
-        /// Shadow Contants
+        static let spacerHeight: CGFloat = 5
+        static let settingsIconSize: CGFloat = 18
+        static let settingsIconPadding: CGFloat = 10
+        static let buttonCornerRadius: CGFloat = 16
+        static let hStackSpacing: CGFloat = 8
         static let shadowRadius: CGFloat = 10
         static let shadowXOffset: CGFloat = 0
         static let shadowYOffset: CGFloat = 5
         static let shadowOpacity: Double = 0.3
         
-        /// Background Constants
         static let fieldOpacity: Double = 0.05
     }
 }
@@ -183,7 +182,7 @@ struct ContentView: View {
         .ignoresSafeArea()
     }
 }
-/// Rendering for app preview
+
 #Preview {
     ContentView()
         .environment(PlayerData())

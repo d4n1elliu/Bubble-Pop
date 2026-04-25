@@ -8,13 +8,31 @@
 import SwiftUI
 import SpriteKit
 
+enum GameViewUI {
+    static let hudFontSize: CGFloat = 20
+    static let hudValueFontSize: CGFloat = 25
+    static let overlayOpacity: Double = 0.4
+    static let gameOverFontSize: CGFloat = 32
+    static let scoreFontSize: CGFloat = 70
+    static let overlaySpacing: CGFloat = 30
+    static let overlayInnerSpacing: CGFloat = 10
+    static let scoreSpacing: CGFloat = 4
+    static let buttonSpacing: CGFloat = 12
+    static let buttonPadding: CGFloat = 16
+    static let overlayPadding: CGFloat = 35
+    static let overlayCornerRadius: CGFloat = 35
+    static let overlayHorizontalPadding: CGFloat = 40
+    static let trackingSpacing: CGFloat = 2
+    static let statColumnSpacing: CGFloat = 6
+}
+
 /// The root view for the bubble-popping game, bridging SpriteKit and SwiftUI.
 struct GameView: View {
     let playerName: String
     @Environment(\.dismiss) private var dismiss
     @Environment(PlayerData.self) private var playerData
     @Environment(ScoreManager.self) private var scoreManager
-
+    
     @State private var showReturnButton = false
     @State private var showScoreBoard = false
     @State private var viewModel: GameViewModel?
@@ -23,19 +41,19 @@ struct GameView: View {
     
     @AppStorage("gameTimeframe") private var timeframe = 60
     @AppStorage("maxBubbles") private var maximumBubbles = 15
-
+    
     @State private var gameScene: GameScene = {
         let scene = GameScene()
         scene.scaleMode = .resizeFill
         scene.backgroundColor = .clear
         return scene
     }()
-
+    
     var body: some View {
         VStack(spacing: 0) {
             /// HUD
             HStack {
-                statColumn(title: "Time Left", value: "\(viewModel?.playTime ?? timeframe)", color: (viewModel?.playTime ?? timeframe) <= 10 ? .red : .primary)
+                statColumn(title: "Time Left", value: "\(viewModel?.remainingPlayTime ?? timeframe)", color: (viewModel?.remainingPlayTime ?? timeframe) <= 10 ? .red : .primary)
                     .frame(maxWidth: .infinity)
                 statColumn(title: "Score", value: "\(playerData.currentScore)")
                     .frame(maxWidth: .infinity)
@@ -44,7 +62,7 @@ struct GameView: View {
             }
             .padding()
             .background(.ultraThinMaterial)
-
+            
             /// Game Layer
             GeometryReader { geo in
                 ZStack {
@@ -69,7 +87,7 @@ struct GameView: View {
                         .onChange(of: geo.size) { _, newSize in
                             gameScene.size = newSize
                         }
-
+                    
                     if isCountingDown {
                         CountdownOverlayView {
                             withAnimation { isCountingDown = false }
@@ -93,27 +111,27 @@ struct GameView: View {
             .environment(scoreManager)
         }
     }
-
+    
     private func statColumn(title: String, value: String, color: Color = .primary) -> some View {
         VStack(spacing: 6) {
             Text(title).font(.system(size: 20, weight: .semibold))
             Text(value).font(.system(size: 25, weight: .medium, design: .monospaced)).foregroundColor(color)
         }
     }
-
+    
     private func setupGame() {
         if viewModel == nil {
             viewModel = GameViewModel(player: playerData, scoreManager: scoreManager)
         }
-
+        
         guard let gc = viewModel else { return }
-
+        
         gc.configure(time: timeframe, maxBubbles: maximumBubbles, scene: gameScene)
-
+        
         gameScene.isPaused = false
         showReturnButton = false
         gameScene.playerName = playerName
-
+        
         gameScene.onReturnHome = {
             DispatchQueue.main.async {
                 withAnimation(.spring()) {
@@ -123,24 +141,24 @@ struct GameView: View {
             }
         }
     }
-
+    
     private var endGameOverlay: some View {
         ZStack {
             Color.black.opacity(0.4).ignoresSafeArea().transition(.opacity)
-
+            
             VStack(spacing: 30) {
                 VStack(spacing: 10) {
-                    Text(viewModel?.playTime ?? 0 <= 0 ? "TIME'S UP!" : "GAME OVER")
+                    Text(viewModel?.remainingPlayTime ?? 0 <= 0 ? "TIME'S UP!" : "GAME OVER")
                         .font(.system(size: 32, weight: .black, design: .rounded))
                     Text(playerName.uppercased())
                         .font(.headline).foregroundColor(.secondary)
                 }
-
+                
                 VStack(spacing: 4) {
                     Text("FINAL SCORE").font(.caption).bold().tracking(2)
                     Text("\(playerData.currentScore)").font(.system(size: 70, weight: .black, design: .rounded))
                 }
-
+                
                 VStack(spacing: 12) {
                     buttonCapsule("Restart Game", color: .blue) {
                         playerData.currentScore = 0
@@ -163,7 +181,7 @@ struct GameView: View {
             .padding(.horizontal, 40)
         }
     }
-
+    
     private func buttonCapsule(_ text: String, color: Color, textColor: Color = .white, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(text)
