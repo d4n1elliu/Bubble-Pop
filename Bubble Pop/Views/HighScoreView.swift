@@ -15,9 +15,9 @@ struct HighScoreView: View {
         ZStack {
             bubbleBackground
             
-            VStack(spacing: 0) {
+            VStack(spacing: HighScoreUI.rootVStackSpacing) {
                 Text("Leaderboard")
-                    .font(.system(size: 50, weight: .black, design: .rounded))
+                    .font(.system(size: HighScoreUI.titleFontSize, weight: .black, design: .rounded))
                     .foregroundStyle(
                         LinearGradient(
                             colors: [.blue, .green],
@@ -26,15 +26,14 @@ struct HighScoreView: View {
                         )
                     )
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-                    .padding(.bottom, 8)
-                
+                    .padding(.horizontal, HighScoreUI.titleHorizontalPadding)
+                    .padding(.top, HighScoreUI.titleTopPadding)
+                    .padding(.bottom, HighScoreUI.titleBottomPadding)
                 if scoreManager.allScores.isEmpty {
                     Spacer()
-                    VStack(spacing: 12) {
+                    VStack(spacing: HighScoreUI.emptyStateSpacing) {
                         Image(systemName: "trophy")
-                            .font(.system(size: 60))
+                            .font(.system(size: HighScoreUI.emptyIconSize))
                             .foregroundStyle(
                                 LinearGradient(
                                     colors: [.blue, .green],
@@ -52,14 +51,11 @@ struct HighScoreView: View {
                 } else {
                     List {
                         ForEach(Array(scoreManager.allScores.enumerated()), id: \.element.id) { index, entry in
-                            HStack(spacing: 16) {
-                                /// Rank number
-                                Text("\(index + 1)")
-                                    .font(.system(size: 28, weight: .black, design: .rounded))
+                            HStack(spacing: HighScoreUI.rowHSpacing) {
+                                Text("\(index + HighScoreUI.rankIndexOffset)")
+                                    .font(.system(size: HighScoreUI.rankFontSize, weight: .black, design: .rounded))
                                     .foregroundColor(.secondary)
-                                    .frame(width: 36, alignment: .center)
-                                
-                                /// Player name
+                                    .frame(width: HighScoreUI.rankFrameWidth, alignment: .center)
                                 Text(entry.playerName)
                                     .font(.system(.headline, design: .rounded))
                                     .foregroundColor(.primary)
@@ -70,15 +66,15 @@ struct HighScoreView: View {
                                     .font(.subheadline.monospacedDigit())
                                     .fontWeight(.semibold)
                                     .foregroundColor(.orange)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, HighScoreUI.scorePillHPadding)
+                                    .padding(.vertical, HighScoreUI.scorePillVPadding)
                                     .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.orange.opacity(0.15))
+                                        RoundedRectangle(cornerRadius: HighScoreUI.scorePillCornerRadius)
+                                            .fill(Color.orange.opacity(HighScoreUI.scorePillOpacity))
                                     )
                             }
-                            .padding(.vertical, 6)
-                            .listRowBackground(Color.white.opacity(0.6))
+                            .padding(.vertical, HighScoreUI.rowVerticalPadding)
+                            .listRowBackground(Color.white.opacity(HighScoreUI.rowBackgroundOpacity))
                         }
                     }
                     .listStyle(.insetGrouped)
@@ -94,7 +90,7 @@ struct HighScoreView: View {
                 Button {
                     dismiss()
                 } label: {
-                    HStack(spacing: 5) {
+                    HStack(spacing: HighScoreUI.toolbarHStackSpacing) {
                         Image(systemName: "chevron.left")
                     }
                     .fontWeight(.semibold)
@@ -109,8 +105,8 @@ struct HighScoreView: View {
                     Text("Clear")
                         .foregroundColor(.red)
                         .fontWeight(.semibold)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, HighScoreUI.toolbarHPadding)
+                        .padding(.vertical, HighScoreUI.toolbarVPadding)
                         .background(.regularMaterial, in: Capsule())
                 }
                 .disabled(scoreManager.allScores.isEmpty)
@@ -121,20 +117,20 @@ struct HighScoreView: View {
     private var bubbleBackground: some View {
         ZStack {
             Circle()
-                .fill(Color.blue.opacity(0.25))
-                .frame(width: 300, height: 300)
-                .blur(radius: 80)
-                .offset(x: -120, y: -300)
+                .fill(Color.blue.opacity(HighScoreUI.bgBlueOpacity))
+                .frame(width: HighScoreUI.bgCircleLargeSize, height: HighScoreUI.bgCircleLargeSize)
+                .blur(radius: HighScoreUI.bgBlurLarge)
+                .offset(x: HighScoreUI.bgLargeOffsetX, y: HighScoreUI.bgLargeOffsetY)
             Circle()
-                .fill(Color.purple.opacity(0.2))
-                .frame(width: 250, height: 250)
-                .blur(radius: 70)
-                .offset(x: 130, y: -100)
+                .fill(Color.purple.opacity(HighScoreUI.bgPurpleOpacity))
+                .frame(width: HighScoreUI.bgCircleMediumSize, height: HighScoreUI.bgCircleMediumSize)
+                .blur(radius: HighScoreUI.bgBlurMedium)
+                .offset(x: HighScoreUI.bgMediumOffsetX, y: HighScoreUI.bgMediumOffsetY)
             Circle()
-                .fill(Color.pink.opacity(0.15))
-                .frame(width: 200, height: 200)
-                .blur(radius: 60)
-                .offset(x: -80, y: 300)
+                .fill(Color.pink.opacity(HighScoreUI.bgPinkOpacity))
+                .frame(width: HighScoreUI.bgCircleSmallSize, height: HighScoreUI.bgCircleSmallSize)
+                .blur(radius: HighScoreUI.bgBlurSmall)
+                .offset(x: HighScoreUI.bgSmallOffsetX, y: HighScoreUI.bgSmallOffsetY)
         }
         .ignoresSafeArea()
     }

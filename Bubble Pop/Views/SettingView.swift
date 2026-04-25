@@ -28,9 +28,9 @@ struct SettingsView: View {
                         Slider(value: Binding(
                             get: { Double(timeframe) },
                             set: { timeframe = Int($0) }
-                        ), in: 10...120, step: 10)
+                        ), in: SettingsUI.timeframeMin...SettingsUI.timeframeMax, step: SettingsUI.timeframeStep)
                         .tint(.blue)
-                        .padding(.vertical, 4)
+                        .padding(.vertical, SettingsUI.sliderVerticalPadding)
                     }
                 } header: {
                     Text("Duration")
@@ -50,7 +50,7 @@ struct SettingsView: View {
                         Slider(value: Binding(
                             get: { Double(bubbles) },
                             set: { bubbles = Int($0) }
-                        ), in: 5...30, step: 1)
+                        ), in: SettingsUI.bubblesMin...SettingsUI.bubblesMax, step: SettingsUI.bubblesStep)
                         .tint(.blue)
                     }
                 } header: {
