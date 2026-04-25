@@ -8,94 +8,95 @@
 import SwiftUI
 
 struct CountdownOverlayView: View {
-    @State private var count = 3
-    @State private var isFlashing = false
+    @State private var remainingCountdownSeconds = CountdownUI.initialCount
+    @State private var isCountdownFlashing = false
     var onFinished: () -> Void
-
+    
     var body: some View {
         ZStack {
-            Color.black.opacity(0.50)
+            Color.black.opacity(CountdownUI.backgroundOpacity)
                 .ignoresSafeArea()
-
-            VStack(spacing: 20) {
+            
+            VStack(spacing: CountdownUI.vStackSpacing) {
                 Text("Get Ready!")
-                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                    .font(.system(size: CountdownUI.titleFontSize, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.6), radius: 4, x: 0, y: 2)
-
-                Text("\(count)")
-                    .font(.system(size: 120, weight: .black, design: .rounded))
+                    .shadow(color: .black.opacity(CountdownUI.titleShadowOpacity), radius: CountdownUI.titleShadowRadius, x: CountdownUI.titleShadowX, y: CountdownUI.titleShadowY)
+                Text("\(remainingCountdownSeconds)")
+                    .font(.system(size: CountdownUI.countFontSize, weight: .black, design: .rounded))
                     .fixedSize()
-                    .frame(width: 200, height: 150)
+                    .frame(width: CountdownUI.countFrameWidth, height: CountdownUI.countFrameHeight)
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color.white, Color(red: 0.5, green: 0.8, blue: 1.0)],
+                            colors: [CountdownUI.gradientTopColor, CountdownUI.gradientBottomColor],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
-                    .shadow(color: .black.opacity(0.5), radius: 8, x: 0, y: 4)
-                    .scaleEffect(isFlashing ? 1.2 : 1.0)
-                    .opacity(isFlashing ? 0.7 : 1.0)
+                    .shadow(color: .black.opacity(CountdownUI.countShadowOpacity), radius: CountdownUI.countShadowRadius, x: CountdownUI.countShadowX, y: CountdownUI.countShadowY)
+                    .scaleEffect(isCountdownFlashing ? CountdownUI.scaleEffectActive : CountdownUI.scaleEffectNormal)
+                    .opacity(isCountdownFlashing ? CountdownUI.opacityActive : CountdownUI.opacityNormal)
                     .contentTransition(.numericText())
-                    .animation(.spring(duration: 0.4), value: count)
-
-                VStack(spacing: 8) {
+                    .animation(.spring(duration: CountdownUI.springDuration), value: remainingCountdownSeconds)
+                
+                VStack(spacing: CountdownUI.pointRowHSpacing) {
                     Text("Pop bubbles to earn points!")
                         .font(.headline)
                         .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.5), radius: 2)
-
-                    VStack(spacing: 6) {
-                        pointRow(label: "Red",   points: "1 pt",   color: Color(red: 1.0, green: 0.25, blue: 0.25))
-                        pointRow(label: "Pink",  points: "2 pts",  color: Color(red: 1.0, green: 0.4,  blue: 0.65))
-                        pointRow(label: "Green", points: "5 pts",  color: Color(red: 0.1, green: 0.95, blue: 0.3))
-                        pointRow(label: "Blue",  points: "8 pts",  color: Color(red: 0.2, green: 0.55, blue: 1.0))
-                        pointRow(label: "Black", points: "10 pts", color: Color(red: 0.75, green: 0.75, blue: 0.75))
+                        .shadow(color: .black.opacity(CountdownUI.flashHintShadowOpacity), radius: CountdownUI.flashHintShadowRadius)
+                    VStack(spacing: CountdownUI.pointRowVSpacing) {
+                        pointRow(label: "Red",   points: "1 pt",   color: CountdownUI.redBubbleColor)
+                        pointRow(label: "Pink",  points: "2 pts",  color: CountdownUI.pinkBubbleColor)
+                        pointRow(label: "Green", points: "5 pts",  color: CountdownUI.greenBubbleColor)
+                        pointRow(label: "Blue",  points: "8 pts",  color: CountdownUI.blueBubbleColor)
+                        pointRow(label: "Black", points: "10 pts", color: CountdownUI.blackBubbleColor)
                     }
-                    .padding(.vertical, 14)
-                    .padding(.horizontal, 24)
-                    .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 16))
+                    .padding(.vertical, CountdownUI.pointRowVerticalPadding)
+                    .padding(.horizontal, CountdownUI.pointRowHorizontalPadding)
+                    .background(Color.white.opacity(CountdownUI.rowBackgroundOpacity), in: RoundedRectangle(cornerRadius: CountdownUI.pointRowCornerRadius))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: CountdownUI.pointRowCornerRadius)
+                            .stroke(Color.white.opacity(CountdownUI.rowBorderOpacity), lineWidth: CountdownUI.pointRowBorderWidth)
                     )
                 }
-                .padding(.top, 20)
+                .padding(.top, CountdownUI.topPadding)
             }
-            .padding(30)
+            .padding(CountdownUI.outerPadding)
         }
         .onAppear {
-            count = 3
-            isFlashing = false
-            withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
-                isFlashing = true
+            remainingCountdownSeconds = CountdownUI.initialCount
+            isCountdownFlashing = false
+            withAnimation(.easeInOut(duration: CountdownUI.flashDuration).repeatForever(autoreverses: true)) {
+                isCountdownFlashing = true
             }
             startCountdown()
         }
     }
 
     private func startCountdown() {
-        guard count > 0 else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            if count > 1 {
-                withAnimation { count -= 1 }
+        guard remainingCountdownSeconds > CountdownUI.countdownStopThreshold else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + CountdownUI.countdownInterval) {
+            if remainingCountdownSeconds > CountdownUI.countdownNextThreshold {
+                withAnimation { remainingCountdownSeconds -= 1 }
                 startCountdown()
             } else {
                 onFinished()
             }
         }
     }
-
+    /// - Parameters:
+    ///   - label: The bubble colour name to display
+    ///   - points: The point value string to display
+    ///   - color: The colour to apply to the label tex
     private func pointRow(label: String, points: String, color: Color) -> some View {
         HStack {
             Text(label)
                 .foregroundColor(color)
-                .shadow(color: .black.opacity(0.8), radius: 3, x: 0, y: 1)
+                .shadow(color: .black.opacity(CountdownUI.labelShadowOpacity), radius: CountdownUI.labelShadowRadius, x: CountdownUI.labelShadowX, y: CountdownUI.labelShadowY)
             Spacer()
             Text(points)
                 .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.6), radius: 2)
+                .shadow(color: .black.opacity(CountdownUI.pointsShadowOpacity), radius: CountdownUI.pointsShadowRadius)
         }
         .font(.subheadline.bold())
     }
