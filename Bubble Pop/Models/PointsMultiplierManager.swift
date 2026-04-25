@@ -22,7 +22,7 @@ class PointsMultiplierManager: ObservableObject {
     enum PointsMultiplierError: LocalizedError {
         case negativeBasePoints(Int)
         case invalidMultiplier(Double)
-
+        
         var errorDescription: String? {
             switch self {
             case .negativeBasePoints(let points):
@@ -57,9 +57,9 @@ class PointsMultiplierManager: ObservableObject {
     }
     
     private func triggerAlert(for error: PointsMultiplierError) {
-            alertMessage = error.errorDescription ?? "An unexpected error occurred."
-            showAlert = true
-        }
+        alertMessage = error.errorDescription ?? "An unexpected error occurred."
+        showAlert = true
+    }
     
     func resetMultiplier() {
         currentMultiplier = Config.defaultMultiplier
