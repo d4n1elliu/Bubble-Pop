@@ -20,7 +20,6 @@ enum PhysicsConstants {
     static let bubbleStrokeWidth: CGFloat = 2.5
 }
 
-// Static configure for core game loop and spawning logic
 enum GameControllerConfig {
     static let initialPlayTime: Int = 60
     static let maxBubbles: Int = 15
@@ -66,6 +65,9 @@ enum BubbleConfig: CaseIterable {
 
 struct BubbleCreation {
     @discardableResult
+    /// - Parameters:
+    ///   - scene: The active GameScene where the bubble will spawn into
+    ///   - cursorPosition: Optional screen position to avoid spawning near cursor
     static func spawnBubble(in scene: GameScene, avoiding cursorPosition: CGPoint? = nil) -> SKShapeNode {
         let bubbleType = randomBubbleType()
         let bubbleSpawnPosition = randomPosition(in: scene, avoiding: cursorPosition)
@@ -92,6 +94,9 @@ struct BubbleCreation {
         return .red
     }
     
+    /// - Parameters:
+    ///   - scene: The active GameScene whose bounds define the valid spawn area
+    ///   - cursorPosition: Optional cursor position to prevent bubbles from spawning on top of cursor
     private static func randomPosition(in scene: GameScene, avoiding cursorPosition: CGPoint?) -> CGPoint {
         let bubbleRadius = PhysicsConstants.bubbleRadius
         var candidatePosition = CGPoint.zero
@@ -107,6 +112,9 @@ struct BubbleCreation {
         return candidatePosition
     }
     
+    /// - Parameters:
+    ///   - type: The BubbleConfig case to define bubble color, points and spawn probability
+    ///   - position: The exact spawn coordinates to place the bubble node at 
     private static func makeBubbleNode(type: BubbleConfig, at position: CGPoint) -> SKShapeNode {
         let node = SKShapeNode(circleOfRadius: PhysicsConstants.bubbleRadius)
         node.name = PhysicsConstants.bubbleName
