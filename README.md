@@ -7,28 +7,35 @@ BubblePop is an interactive, casual iOS game developed in swift. This game chall
 ```
 Bubble Pop/
 ├── App/
-│   └── Bubble_PopApp.swift           # App entry point and environment setup
+│   └── Bubble_PopApp.swift                # App entry point and environment setup
 ├── Models/
-│   ├── BubbleConfig.swift            # Bubble types, colours, points, physics constants
-│   ├── Item.swift                    # SwiftData model
-│   ├── LeaderBoardManager.swift      # Leaderboard data management
-│   ├── PlayerData.swift              # Current player state and score
-│   ├── PlayerRecord.swift            # Persistent player score record
-│   ├── PointsMultiplierManager.swift # Combo multiplier logic
-│   └── ScoreManager.swift            # High score tracking and persistence
+│   ├── BubbleConfig.swift                 # Bubble types, colours, points and spawn logic
+│   ├── GameControllerConstants.swift      # Core game loop and spawning constants
+│   ├── Item.swift                         # SwiftData model
+│   ├── LeaderBoardManager.swift           # Leaderboard data management and persistence
+│   ├── PhysicsConstants.swift             # SpriteKit physics and bubble physics constants
+│   ├── PlayerData.swift                   # Current player state and score
+│   ├── PlayerRecord.swift                 # Persistent player score record
+│   ├── PointsMultiplierManager.swift      # Combo multiplier logic
+│   └── ScoreManager.swift                 # High score tracking and persistence
 ├── ViewModels/
-│   └── GameViewModel.swift           # Core game logic, timer, bubble spawning
+│   └── GameViewModel.swift                # Core game logic, timer and bubble spawning
 ├── Views/
-│   ├── ContentView.swift             # Home/onboarding screen with name entry
-│   ├── CountdownView.swift           # Pre game countdown overlay (3, 2, 1)
-│   ├── GameScene.swift               # SpriteKit scene, physics, bubble interactions
-│   ├── GameView.swift                # Main game screen bridging SwiftUI and SpriteKit
-│   ├── HighScoreView.swift           # Leaderboard screen
-│   └── SettingView.swift             # Game settings (time, max bubbles)
+│   ├── ContentUIConstants.swift           # Layout constants for ContentView
+│   ├── ContentView.swift                  # Home screen with player name entry
+│   ├── CountdownUIConstants.swift         # Layout constants for CountdownView
+│   ├── CountdownView.swift                # Pre-game countdown overlay (3, 2, 1)
+│   ├── GameScene.swift                    # SpriteKit scene, physics and bubble interactions
+│   ├── GameView.swift                     # Main game screen bridging SwiftUI and SpriteKit
+│   ├── GameViewUIConstants.swift          # Layout constants for GameView
+│   ├── HighScoreUIConstants.swift         # Layout constants for HighScoreView
+│   ├── HighScoreView.swift                # Leaderboard screen
+│   ├── SettingsUIConstants.swift          # Layout constants for SettingsView
+│   └── SettingView.swift                  # Game settings (time and max bubbles)
 ├── Sound/
-│   ├── bubblepop_sound.mp3           # Bubble pop sound effect
-│   └── 1.5x_combo_sound.mp3          # Combo chain sound effect
-└── Assets/                           # App icons & images
+│   ├── bubblepop_sound.mp3                # Bubble pop sound effect
+│   └── 1.5x_combo_sound.mp3               # Combo chain sound effect
+└── Assets/                                # App icons and images
 ```
 
 ## Demo
@@ -86,6 +93,10 @@ A final results overlay will displays player's overall performance and include a
 | UI          | SwiftUI                             |
 | Game Engine | SpriteKit                           |
 | Persistence | SwiftData                           |
+
+## Credits
+
+- Sound effects by [huddled](https://www.youtube.com/watch?v=dNwhWt2wvFY) (YouTube)
 
 ---
 
