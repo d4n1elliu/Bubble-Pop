@@ -12,9 +12,7 @@ import SpriteKit
 class GameViewModel {
     
     var remainingPlayTime: Int = GameControllerConfig.initialPlayTime
-    var totalGameDuration: Int = GameControllerConfig.initialPlayTime {
-        didSet { remainingPlayTime = totalGameDuration }
-    }
+    var totalGameDuration: Int = GameControllerConfig.initialPlayTime { didSet { remainingPlayTime = totalGameDuration } }
     var maxBubbleCount: Int = GameControllerConfig.maxBubbles
     var currentSpawnCount: Int = GameControllerConfig.initialSpawnCount
     var player: PlayerData
@@ -65,7 +63,7 @@ class GameViewModel {
         }
         
         gameTimer = Timer.scheduledTimer(withTimeInterval: GameControllerConfig.timerInterval, repeats: true) { [weak self] _ in
-            self?.tick()
+            self?.gameTick()
         }
     }
     
@@ -93,7 +91,7 @@ class GameViewModel {
         scoreManager.updateHighScore(with: player.currentScore, playerName: player.name)
     }
     
-    private func tick() {
+    private func gameTick() {
         guard remainingPlayTime > GameControllerConfig.gameOverThreshold else {
             endGame()
             return
