@@ -94,6 +94,10 @@ A final results overlay will displays player's overall performance and include a
 | Game Engine | SpriteKit                           |
 | Persistence | SwiftData                           |
 
+## Credits
+
+- Sound effects by [huddled](https://www.youtube.com/watch?v=dNwhWt2wvFY) (YouTube)
+
 ---
 
 ## AI Usage
