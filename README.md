@@ -1,4 +1,4 @@
-<h1 align="center">BubblePop</h1>
+<h1 align="center">Bubble Pop</h1>
 
 BubblePop is an interactive, casual iOS game developed in swift. This game challenges players to pop randomly appearing bubbles of various colors to achieve the highest score within a set timeframe.
 
